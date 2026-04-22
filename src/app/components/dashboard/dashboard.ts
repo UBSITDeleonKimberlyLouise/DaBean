@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './dashboard.html',
   styleUrls:   ['./dashboard.css']
 })
-export class DashboardComponent implements OnInit {
+export class Dashboard implements OnInit {
 
   publicReviews: any[] = [];
   myReviews:     any[] = [];
