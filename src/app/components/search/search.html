@@ -1,1 +1,129 @@
-<p>search works!</p>
+<div class="search-page">
+
+  <div class="page-header">
+    <div class="page-header-inner">
+      <p class="section-eyebrow">🔍 Find Your Next Spot</p>
+      <h1>Search Cafes</h1>
+      <p class="header-sub">Powered by Yelp — real cafes, real data</p>
+    </div>
+  </div>
+
+  <div class="search-inner">
+
+    <div class="search-box card">
+      <div class="search-fields">
+
+        <div class="form-group">
+          <label for="term">Cafe Name or Keyword</label>
+          <input
+            id="term"
+            type="text"
+            class="form-control"
+            placeholder="e.g. Third Wave Coffee, brunch..."
+            [(ngModel)]="searchTerm"
+            name="term"
+            (keyup.enter)="search()"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input
+            id="location"
+            type="text"
+            class="form-control"
+            placeholder="e.g. Makati, Baguio, BGC..."
+            [(ngModel)]="searchLocation"
+            name="location"
+            (keyup.enter)="search()"
+          />
+        </div>
+
+        <div class="search-btn-wrap">
+          <button
+            class="btn btn-primary search-btn"
+            (click)="search()"
+            [disabled]="loading"
+          >
+            <span *ngIf="loading" class="spinner"></span>
+            <span *ngIf="!loading">Search ☕</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="alert alert-error mt-2" *ngIf="error">{{ error }}</div>
+
+    <ng-container *ngIf="!loading && searched">
+
+      <div class="results-header" *ngIf="results.length">
+        <h2>{{ results.length }} places found</h2>
+        <p>Pick a spot to log your visit</p>
+      </div>
+
+      <div class="results-grid" *ngIf="results.length">
+        <div
+          class="result-card card fade-in-up"
+          *ngFor="let b of results; let i = index"
+          [style.animation-delay]="(i * 0.05) + 's'"
+          [class.selected]="selectedCafe?.id === b.id"
+        >
+          <div class="result-img-wrap">
+            <img
+              *ngIf="b.image_url"
+              [src]="b.image_url"
+              [alt]="b.name"
+              class="result-img"
+            />
+            <div *ngIf="!b.image_url" class="result-img-placeholder">☕</div>
+          </div>
+
+          <div class="result-info">
+            <div class="result-top">
+              <h3 class="result-name">{{ b.name }}</h3>
+              <span class="result-price" *ngIf="b.price">{{ b.price }}</span>
+            </div>
+
+            <p class="result-category" *ngIf="b.categories?.length">
+              {{ getCategoryLabel(b.categories) }}
+            </p>
+
+            <p class="result-address" *ngIf="b.location?.display_address">
+              📍 {{ b.location.display_address.join(', ') }}
+            </p>
+
+            <div class="result-rating" *ngIf="b.rating">
+              <span class="yelp-stars">★ {{ b.rating }}</span>
+              <span class="review-count">({{ b.review_count }} Yelp reviews)</span>
+            </div>
+
+            <button
+              class="btn btn-accent btn-sm result-btn"
+              (click)="selectCafe(b)"
+            >
+              + Add to My Log
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!results.length">
+        <span class="empty-icon">🔍</span>
+        <h3>No cafes found</h3>
+        <p>Try a different keyword or location</p>
+      </div>
+
+    </ng-container>
+
+    <div id="review-form-anchor" *ngIf="showReviewForm && selectedCafe">
+      <hr class="divider mt-3">
+      <app-review-form
+        [selectedCafe]="selectedCafe"
+        (onSaved)="onReviewSaved()"
+        (onCancel)="onCancelForm()"
+      ></app-review-form>
+    </div>
+
+  </div>
+</div>

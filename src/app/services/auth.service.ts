@@ -14,8 +14,6 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  // ── Getters ────────────────────────────────────────────────────────────────
-
   get currentUser(): any {
     return this.currentUserSubject.value;
   }
@@ -32,8 +30,6 @@ export class AuthService {
     const token = this.getToken();
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
-
-  // ── Auth Operations ────────────────────────────────────────────────────────
 
   register(username: string, email: string, password: string): Observable<any> {
     return this.http
@@ -58,8 +54,6 @@ export class AuthService {
     localStorage.removeItem(this.userKey);
     this.currentUserSubject.next(null);
   }
-
-  // ── Helpers ────────────────────────────────────────────────────────────────
 
   private persistSession(res: any): void {
     if (res.token) {

@@ -1,1 +1,144 @@
-<p>review-form works!</p>
+<div class="form-wrapper">
+  <div class="review-form card fade-in-up">
+
+    <div class="form-header">
+      <div class="form-header-info">
+        <h2 *ngIf="!editReview">Log Your Visit</h2>
+        <h2 *ngIf="editReview">Update Review</h2>
+
+        <p *ngIf="selectedCafe" class="form-cafe-name">
+          <strong>{{ selectedCafe.name }}</strong>
+          <span *ngIf="selectedCafe.location?.display_address">
+            — {{ selectedCafe.location.display_address.join(', ') }}
+          </span>
+        </p>
+        <p *ngIf="editReview" class="form-cafe-name">
+          <strong>{{ editReview.cafe_name }}</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="alert alert-success" *ngIf="success">{{ success }}</div>
+    <div class="alert alert-error"   *ngIf="error">{{ error }}</div>
+
+    <form (ngSubmit)="onSubmit()" #reviewForm="ngForm" novalidate>
+
+      <div class="form-group">
+        <label>Your Rating <span class="required">*</span></label>
+        <div class="star-picker" (mouseleave)="clearHover()">
+          <button
+            type="button"
+            class="star-btn"
+            *ngFor="let i of [1,2,3,4,5]"
+            [class.filled]="getStarState(i)"
+            (mouseenter)="setHover(i)"
+            (click)="setRating(i)"
+            [attr.aria-label]="'Rate ' + i + ' out of 5'"
+          >★</button>
+        </div>
+        <span class="rating-hint" *ngIf="rating">{{ rating }}/5 stars</span>
+      </div>
+
+      <div class="form-group">
+        <label>Status</label>
+        <div class="toggle-row">
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.active-visited]="isVisited"
+            (click)="isVisited = true"
+          >✓ Visited</button>
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.active-wishlist]="!isVisited"
+            (click)="isVisited = false"
+          >♡ Wishlist</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dateVisited">Date Visited</label>
+        <input
+          id="dateVisited"
+          type="date"
+          class="form-control"
+          [(ngModel)]="dateVisited"
+          name="dateVisited"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="companions">Who did you go with?</label>
+        <input
+          id="companions"
+          type="text"
+          class="form-control"
+          placeholder="Solo, with friends, date..."
+          [(ngModel)]="companions"
+          name="companions"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="bestDish">Best Dish / Drink 🍽</label>
+        <input
+          id="bestDish"
+          type="text"
+          class="form-control"
+          placeholder="Oat milk latte, mushroom toast..."
+          [(ngModel)]="bestDish"
+          name="bestDish"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="reviewText">Your Notes</label>
+        <textarea
+          id="reviewText"
+          class="form-control"
+          placeholder="Cozy corner spot, great playlist, would visit again on a rainy afternoon..."
+          [(ngModel)]="reviewText"
+          name="reviewText"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Visibility</label>
+        <div class="toggle-row">
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.active-public]="isPublic"
+            (click)="isPublic = true"
+          >🌐 Public</button>
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.active-private]="!isPublic"
+            (click)="isPublic = false"
+          >🔒 Only Me</button>
+        </div>
+        <p class="field-hint">Public reviews appear in the community feed.</p>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading"
+        >
+          <span *ngIf="loading" class="spinner"></span>
+          <span *ngIf="!loading && !editReview">Save to Log ☕</span>
+          <span *ngIf="!loading &&  editReview">Update Review ✓</span>
+        </button>
+
+        <button type="button" class="btn btn-secondary" (click)="cancel()">
+          Cancel
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

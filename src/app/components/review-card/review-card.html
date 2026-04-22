@@ -1,1 +1,79 @@
-<p>review-card works!</p>
+<div class="review-card card fade-in-up" *ngIf="review">
+
+  <div class="card-top">
+    <div
+      class="cafe-thumbnail"
+      [style.background-image]="review.image_url ? 'url(' + review.image_url + ')' : 'none'"
+    >
+      <span *ngIf="!review.image_url" class="placeholder-icon">☕</span>
+    </div>
+
+    <div class="card-info">
+      <div class="card-badges">
+        <span class="badge" [ngClass]="review.is_visited ? 'badge-visited' : 'badge-wishlist'">
+          {{ review.is_visited ? '✓ Visited' : '♡ Wishlist' }}
+        </span>
+        <span class="badge" [ngClass]="review.is_public ? 'badge-public' : 'badge-private'"
+              *ngIf="isOwner">
+          {{ review.is_public ? '🌐 Public' : '🔒 Private' }}
+        </span>
+      </div>
+
+      <h3 class="cafe-name">{{ review.cafe_name }}</h3>
+
+      <p class="cafe-address" *ngIf="review.address">
+        📍 {{ review.address }}
+      </p>
+
+      <p class="cafe-category" *ngIf="review.category">
+        🏷 {{ review.category }}
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="rating-row">
+    <div class="stars">
+      <span
+        class="star"
+        *ngFor="let s of getStars(review.rating)"
+        [class.filled]="s.filled"
+      >★</span>
+    </div>
+    <span class="rating-label">{{ review.rating }}/5</span>
+  </div>
+
+  <p class="review-text" *ngIf="review.review_text">
+    "{{ review.review_text }}"
+  </p>
+
+  <div class="meta-grid">
+    <div class="meta-item" *ngIf="review.best_dish">
+      <span class="meta-label">🍽 Best Dish</span>
+      <span class="meta-value">{{ review.best_dish }}</span>
+    </div>
+    <div class="meta-item" *ngIf="review.companions">
+      <span class="meta-label">👥 With</span>
+      <span class="meta-value">{{ review.companions }}</span>
+    </div>
+    <div class="meta-item" *ngIf="review.date_visited">
+      <span class="meta-label">📅 Visited</span>
+      <span class="meta-value">{{ formatDate(review.date_visited) }}</span>
+    </div>
+  </div>
+
+  <div class="card-author" *ngIf="!isOwner && review.username">
+    <span class="author-tag">by <strong>{{ review.username }}</strong></span>
+  </div>
+
+  <div class="card-actions" *ngIf="isOwner">
+    <button class="btn btn-secondary btn-sm" (click)="emitEdit()">
+      ✏️ Edit
+    </button>
+    <button class="btn btn-danger btn-sm" (click)="emitDelete()">
+      🗑 Remove
+    </button>
+  </div>
+
+</div>

@@ -13,8 +13,6 @@ export class CafeService {
     private authService: AuthService
   ) {}
 
-  // ── Yelp Search (via backend proxy) ───────────────────────────────────────
-
   searchCafes(term: string, location: string): Observable<any> {
     const params = new HttpParams()
       .set('term',     term     || 'coffee')
@@ -25,8 +23,6 @@ export class CafeService {
       .pipe(catchError(this.handleError));
   }
 
-  // ── Public Review Feed ────────────────────────────────────────────────────
-
   getPublicReviews(filters?: { rating?: number; type?: string }): Observable<any> {
     let params = new HttpParams();
     if (filters?.rating) { params = params.set('rating', filters.rating.toString()); }
@@ -36,8 +32,6 @@ export class CafeService {
       .get(`${this.apiUrl}/reviews/public`, { params })
       .pipe(catchError(this.handleError));
   }
-
-  // ── Protected: User's Own Reviews ─────────────────────────────────────────
 
   getMyReviews(): Observable<any> {
     const headers = this.authService.getAuthHeaders();
@@ -95,16 +89,12 @@ export class CafeService {
       .pipe(catchError(this.handleError));
   }
 
-  // ── User Badges ───────────────────────────────────────────────────────────
-
   getUserBadges(): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     return this.http
       .get(`${this.apiUrl}/users/badges`, { headers })
       .pipe(catchError(this.handleError));
   }
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
 
   private handleError(err: any): Observable<never> {
     const message = err?.error?.message || 'Something went wrong. Please try again.';
