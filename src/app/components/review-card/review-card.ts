@@ -1,11 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+
 
 @Component({
   selector:    'app-review-card',
-  templateUrl: './review-card.component.html',
-  styleUrls:   ['./review-card.component.css']
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './review-card.html',
+  styleUrls:   ['./review-card.css']
 })
-export class ReviewCardComponent {
+export class ReviewCard {
 
   @Input()  review:    any;
   @Input()  isOwner  = false;

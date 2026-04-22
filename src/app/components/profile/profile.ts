@@ -1,13 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { CafeService } from '../cafe.service';
-import { AuthService } from '../auth.service';
+import { CafeService } from '../../services/cafe.service';
+import { AuthService } from '../../services/auth.service';
+import { CommonModule, DatePipe } from '@angular/common';
+import { ReviewCard } from '../review-card/review-card';
+import { ReviewForm } from '../review-form/review-form';
 
 @Component({
   selector:    'app-profile',
-  templateUrl: './profile.component.html',
-  styleUrls:   ['./profile.component.css']
+  imports: [CommonModule, DatePipe, ReviewCard, ReviewForm],
+  templateUrl: './profile.html',
+  styleUrls:   ['./profile.css']
 })
-export class ProfileComponent implements OnInit {
+export class Profile implements OnInit {
 
   currentUser: any   = null;
   allReviews:  any[] = [];

@@ -1,12 +1,18 @@
 import { Component } from '@angular/core';
-import { CafeService } from '../cafe.service';
+import { CafeService } from '../../services/cafe.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ReviewForm } from '../review-form/review-form';
+
 
 @Component({
   selector:    'app-search',
-  templateUrl: './search.component.html',
-  styleUrls:   ['./search.component.css']
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReviewForm],
+  templateUrl: './search.html',
+  styleUrls:   ['./search.css']
 })
-export class SearchComponent {
+export class Search {
 
   searchTerm      = '';
   searchLocation  = '';

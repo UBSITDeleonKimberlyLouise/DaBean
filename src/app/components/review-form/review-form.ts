@@ -1,12 +1,16 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { CafeService } from '../cafe.service';
+import { CafeService } from '../../services/cafe.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector:    'app-review-form',
-  templateUrl: './review-form.component.html',
-  styleUrls:   ['./review-form.component.css']
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './review-form.html',
+  styleUrls:   ['./review-form.css']
 })
-export class ReviewFormComponent implements OnChanges {
+export class ReviewForm implements OnChanges {
 
   @Input()  selectedCafe: any  = null;
   @Input()  editReview:   any  = null;

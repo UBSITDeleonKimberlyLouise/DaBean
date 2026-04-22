@@ -1,0 +1,197 @@
+/* ============================================
+   Dashboard Component Styles
+   ============================================ */
+
+.dashboard-page {
+  min-height: calc(100vh - 68px);
+}
+
+/* ── Page Header ── */
+.page-header {
+  background: linear-gradient(135deg, var(--espresso), var(--roast));
+  padding: 52px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header::after {
+  content: '☕';
+  position: absolute;
+  font-size: 16rem;
+  opacity: 0.04;
+  bottom: -40px;
+  left: -20px;
+  line-height: 1;
+}
+
+.page-header-inner {
+  position: relative;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.section-eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--latte);
+  margin-bottom: 10px;
+}
+
+.page-header h1 {
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.header-sub {
+  color: rgba(212, 169, 106, 0.8);
+  font-size: 1rem;
+}
+
+/* ── Inner Container ── */
+.dashboard-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 36px 24px 60px;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 28px;
+  background: var(--cream);
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  width: fit-content;
+}
+
+.tab-btn {
+  padding: 10px 22px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--roast);
+  background: transparent;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.tab-btn.active {
+  background: var(--warm-white);
+  color: var(--espresso);
+  font-weight: 700;
+  box-shadow: var(--shadow-soft);
+}
+
+.tab-btn:not(.active):hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Filters Bar ── */
+.filters-bar {
+  background: var(--warm-white);
+  border: 1px solid rgba(212, 169, 106, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-soft);
+}
+
+.filters-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+  flex: 1;
+}
+
+.filter-group label {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--roast);
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding-bottom: 1px;
+}
+
+/* ── Loading ── */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 60px 0;
+  color: var(--latte);
+  font-style: italic;
+}
+
+/* ── Reviews Grid ── */
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* ── Guest CTA ── */
+.guest-cta {
+  margin-top: 48px;
+  display: flex;
+  justify-content: center;
+}
+
+.guest-cta-inner {
+  max-width: 480px;
+  width: 100%;
+  padding: 44px 36px;
+  text-align: center;
+}
+
+.guest-icon {
+  display: block;
+  font-size: 2.4rem;
+  margin-bottom: 16px;
+}
+
+.guest-cta-inner h3 {
+  margin-bottom: 10px;
+}
+
+.guest-cta-inner p {
+  margin-bottom: 24px;
+  color: var(--slate);
+}
+
+.guest-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .reviews-grid { grid-template-columns: 1fr; }
+  .filters-row { flex-direction: column; }
+  .filter-group { min-width: auto; }
+  .tabs { width: 100%; }
+  .tab-btn { flex: 1; text-align: center; }
+}

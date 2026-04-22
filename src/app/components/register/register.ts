@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector:    'app-register',
-  templateUrl: './register.component.html',
-  styleUrls:   ['./register.component.css']
+  imports: [FormsModule],
+  templateUrl: './register.html',
+  styleUrls:   ['./register.css']
 })
-export class RegisterComponent {
+export class Register {
 
   username = '';
   email    = '';
