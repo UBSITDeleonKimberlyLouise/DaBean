@@ -1,26 +1,20 @@
-// ============================================
-// Bean There, Done That — Navbar Component
-// Author: [Student Name]
-// Date: 2025
-// Assignment: Cafe Tracker Application
-// ============================================
-
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';  // ✅ import RouterModule
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector:    'app-navbar',
+  selector: 'app-navbar',
+  standalone: true,        // make it standalone
+  imports: [RouterModule], // ✅ required for router directives
   templateUrl: './navbar.html',
-  styleUrls:   ['./navbar.css']
+  styleUrls: ['./navbar.css']
 })
 export class Navbar {
-
   private authService = inject(AuthService);
   private router      = inject(Router);
 
   currentUser: any = null;
-  menuOpen         = false;
+  menuOpen = false;
 
   constructor() {
     this.authService.currentUser$.subscribe(user => {
