@@ -1,16 +1,14 @@
-// ============================================
-// Bean There, Done That — Profile Component
-// Author: [Student Name]
-// Date: 2025
-// Assignment: Cafe Tracker Application
-// ============================================
-
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { CafeService } from '../../services/cafe.service';
+import { ReviewCard } from '../review-card/review-card';
+import { ReviewForm } from '../review-form/review-form';
+
+
 
 @Component({
   selector:    'app-profile',
+  imports: [ReviewCard,ReviewForm],
   templateUrl: './profile.html',
   styleUrls:   ['./profile.css']
 })
@@ -26,7 +24,7 @@ export class Profile {
   loading        = true;
   error          = '';
 
-  activeFilter   = 'all';       // 'all' | 'visited' | 'wishlist'
+  activeFilter   = 'all';    
   editingReview: any = null;
   showEditForm      = false;
 
@@ -54,6 +52,7 @@ export class Profile {
     });
     this.loadData();
   }
+  
 
   // ── Loaders ───────────────────────────────────────────────────────────────
 
@@ -99,6 +98,11 @@ export class Profile {
     this.showEditForm  = false;
     this.editingReview = null;
   }
+
+  formatJoinDate(dateStr: string | undefined): string {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+}
 
   deleteReview(id: string): void {
     if (!confirm('Remove this cafe from your log?')) { return; }

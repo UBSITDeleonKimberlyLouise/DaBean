@@ -20,7 +20,7 @@
           >
             {{ review().is_visited ? '✓ Visited' : '♡ Wishlist' }}
           </span>
-          @if (isOwner) {
+          @if (isOwner()) {
             <span
               class="badge"
               [class.badge-public]="review().is_public"
@@ -34,15 +34,11 @@
         <h3 class="cafe-name">{{ review().cafe_name }}</h3>
 
         @if (review().address) {
-          <p class="cafe-address">
-            📍 {{ review().address }}
-          </p>
+          <p class="cafe-address">📍 {{ review().address }}</p>
         }
 
         @if (review().category) {
-          <p class="cafe-category">
-            🏷 {{ review().category }}
-          </p>
+          <p class="cafe-category">🏷 {{ review().category }}</p>
         }
       </div>
     </div>
@@ -59,9 +55,7 @@
     </div>
 
     @if (review().review_text) {
-      <p class="review-text">
-        "{{ review().review_text }}"
-      </p>
+      <p class="review-text">"{{ review().review_text }}"</p>
     }
 
     <div class="meta-grid">
@@ -85,20 +79,16 @@
       }
     </div>
 
-    @if (!isOwner && review().username) {
+    @if (!isOwner() && review().username) {
       <div class="card-author">
         <span class="author-tag">by <strong>{{ review().username }}</strong></span>
       </div>
     }
 
-    @if (isOwner) {
+    @if (isOwner()) {
       <div class="card-actions">
-        <button class="btn btn-secondary btn-sm" (click)="emitEdit()">
-          ✏️ Edit
-        </button>
-        <button class="btn btn-danger btn-sm" (click)="emitDelete()">
-          🗑 Remove
-        </button>
+        <button class="btn btn-secondary btn-sm" (click)="emitEdit()">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" (click)="emitDelete()">🗑 Remove</button>
       </div>
     }
 
