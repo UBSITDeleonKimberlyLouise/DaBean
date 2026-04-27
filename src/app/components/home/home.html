@@ -19,13 +19,13 @@
 
       <div class="hero-cta">
 
-        @ngIf (!isLoggedIn) {
+        @if (!isLoggedIn) {
           <a routerLink="/register" class="btn btn-primary">
             Start Your Log ☕
           </a>
         }
 
-        @ngIf (isLoggedIn) {
+        @if (isLoggedIn) {
           <a routerLink="/search" class="btn btn-primary">
             Search Cafes 🔍
           </a>
@@ -68,7 +68,7 @@
         @for (f of features; track f.title; let i = $index) {
           <div
             class="feature-card card fade-in-up"
-            [style.animation-delay]="(i * 0.1) + 's'"
+            style="animation-delay: {{ i * 0.1 }}s"
           >
             <span class="feature-icon">{{ f.icon }}</span>
             <h3>{{ f.title }}</h3>
@@ -81,7 +81,7 @@
   </section>
 
   <!-- CTA Banner -->
-  @ngIf (!isLoggedIn) {
+  @if (!isLoggedIn) {
     <section class="cta-banner">
       <div class="cta-inner">
         <h2>Ready to start brewing your log?</h2>

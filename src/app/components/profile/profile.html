@@ -1,13 +1,15 @@
 <div class="profile-page">
 
   <div class="page-header">
+
     <div class="profile-hero">
       <div class="avatar">
-        {{ currentUser?.username?.charAt(0)?.toUpperCase() ?? '☕' }}
+        {{ currentUser?.username?.charAt(0)?.toUpperCase() || '☕' }}
       </div>
+
       <div class="profile-info">
         <h1>{{ currentUser?.username }}'s Log</h1>
-        <p>Member since {{ formatJoinDate(currentUser?.date_joined) }}</p>
+        <p>Member since {{ currentUser?.date_joined }}</p>
       </div>
     </div>
 
@@ -16,19 +18,23 @@
         <span class="stat-number">{{ allReviews.length }}</span>
         <span class="stat-label">Total Entries</span>
       </div>
+
       <div class="stat-item">
         <span class="stat-number">{{ visitedList.length }}</span>
         <span class="stat-label">Visited</span>
       </div>
+
       <div class="stat-item">
         <span class="stat-number">{{ wishlistList.length }}</span>
         <span class="stat-label">Wishlist</span>
       </div>
+
       <div class="stat-item">
         <span class="stat-number">{{ averageRating }}</span>
         <span class="stat-label">Avg. Rating</span>
       </div>
     </div>
+
   </div>
 
   <div class="profile-inner">
@@ -36,6 +42,7 @@
     @if (badges.length) {
       <section class="badges-section">
         <h2>🏆 Your Badges</h2>
+
         <div class="badges-row">
           @for (b of badges; track b.name) {
             <div class="badge-tile">
@@ -59,59 +66,42 @@
       </div>
     }
 
-    @if (!loading && allReviews.length) {
-      <div class="filter-tabs">
-        <button class="tab-btn" [class.active]="activeFilter==='all'" (click)="setFilter('all')">
-          All ({{ allReviews.length }})
-        </button>
-        <button class="tab-btn" [class.active]="activeFilter==='visited'" (click)="setFilter('visited')">
-          ✓ Visited ({{ visitedList.length }})
-        </button>
-        <button class="tab-btn" [class.active]="activeFilter==='wishlist'" (click)="setFilter('wishlist')">
-          ♡ Wishlist ({{ wishlistList.length }})
-        </button>
-      </div>
-    }
-
     @if (!loading && filteredReviews.length) {
+      <div class="filter-tabs">
+
+        <button (click)="setFilter('all')">All</button>
+        <button (click)="setFilter('visited')">Visited</button>
+        <button (click)="setFilter('wishlist')">Wishlist</button>
+
+      </div>
+
       <div class="reviews-grid">
-        @for (r of filteredReviews; track r.id) {
+
+        @for (r of filteredReviews; track r._id) {
           <app-review-card
             [review]="r"
-            [isOwner]="true"
             (onEdit)="startEdit($event)"
             (onDelete)="deleteReview($event)"
           ></app-review-card>
         }
+
       </div>
     }
 
-    @if (!loading && !allReviews.length && !error) {
+    @if (!loading && !allReviews.length) {
       <div class="empty-state">
-        <span class="empty-icon">📋</span>
         <h3>Your log is empty</h3>
-        <p>Start by searching for a cafe to add your first entry.</p>
-        <a routerLink="/search" class="btn btn-accent mt-3">Search Cafes 🔍</a>
+        <p>Start by searching for cafes.</p>
+        <a routerLink="/search">Search Cafes</a>
       </div>
     }
 
     @if (showEditForm && editingReview) {
-      <div id="edit-form-anchor">
-        <hr class="divider">
-        <app-review-form
-          [editReview]="editingReview"
-          (onSaved)="onEditSaved()"
-          (onCancel)="cancelEdit()"
-        ></app-review-form>
-      </div>
-    }
-
-    @if (!loading && allReviews.length) {
-      <div class="add-more">
-        <a routerLink="/search" class="btn btn-secondary">
-          + Add Another Cafe
-        </a>
-      </div>
+      <app-review-form
+        [editReview]="editingReview"
+        (onSaved)="onEditSaved()"
+        (onCancel)="cancelEdit()"
+      ></app-review-form>
     }
 
   </div>

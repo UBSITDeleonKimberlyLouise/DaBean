@@ -30,6 +30,13 @@ export class Dashboard {
   filterRating   = '';
   filterType     = '';
 
+  email = '';
+  password = '';
+  
+  onSubmit(): void {
+    console.log('Dashboard form submit');
+  }
+
   readonly typeOptions = [
     'Coffee & Tea', 'Brunch', 'Breakfast & Brunch',
     'Cafes', 'Bakeries', 'Desserts', 'Italian', 'Asian Fusion'

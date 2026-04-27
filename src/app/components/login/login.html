@@ -7,11 +7,13 @@
       <p>Log in to your coffee journal</p>
     </div>
 
-    @ngIf (error) {
-      <div class="alert alert-error">{{ error }}</div>
+    @if (error) {
+      <div class="alert alert-error">
+        {{ error }}
+      </div>
     }
 
-    <form (ngSubmit)="onSubmit($event)" novalidate>
+    <form (ngSubmit)="onSubmit()" novalidate>
 
       <div class="form-group">
         <label for="email">Email</label>
@@ -20,7 +22,7 @@
           type="email"
           class="form-control"
           placeholder="your@email.com"
-          (input)="email = $event.target.value"
+          (input)="email = $any($event.target).value"
           required
         />
       </div>
@@ -32,7 +34,7 @@
           type="password"
           class="form-control"
           placeholder="••••••••"
-          (input)="password = $event.target.value"
+          (input)="password = $any($event.target).value"
           required
         />
       </div>
@@ -42,15 +44,11 @@
         class="btn btn-primary w-full"
         [disabled]="loading"
       >
-
-        @ngIf (loading) {
+        @if (loading) {
           <span class="spinner"></span>
-        }
-
-        @ngIf (!loading) {
+        } @else {
           <span>Log In ☕</span>
         }
-
       </button>
 
     </form>

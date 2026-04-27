@@ -15,7 +15,6 @@ import { Component, input, output } from '@angular/core';
 export class ReviewCard {
 
   review   = input<any>();
-  isOwner  = input<boolean>(false);
   onEdit   = output<any>();
   onDelete = output<string>();
 
