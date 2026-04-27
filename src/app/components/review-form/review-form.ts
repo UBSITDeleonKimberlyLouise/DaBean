@@ -1,23 +1,31 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+// ============================================
+// Bean There, Done That — Review Form Component
+// Author: [Student Name]
+// Date: 2025
+// Assignment: Cafe Tracker Application
+// ============================================
+
+import { Component, input, output, effect, inject } from '@angular/core';
 import { CafeService } from '../../services/cafe.service';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector:    'app-review-form',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
   templateUrl: './review-form.html',
   styleUrls:   ['./review-form.css']
 })
-export class ReviewForm implements OnChanges {
+export class ReviewForm {
 
-  @Input()  selectedCafe: any  = null;
-  @Input()  editReview:   any  = null;
+  private cafeService = inject(CafeService);
 
-  @Output() onSaved  = new EventEmitter<void>();
-  @Output() onCancel = new EventEmitter<void>();
+  // Passed in from Search when adding a new review
+  selectedCafe = input<any>(null);
+  // Passed in from Profile when editing an existing review
+  editReview   = input<any>(null);
 
+  onSaved  = output<void>();
+  onCancel = output<void>();
+
+  // Form fields
   rating      = 0;
   reviewText  = '';
   dateVisited = '';
@@ -31,23 +39,25 @@ export class ReviewForm implements OnChanges {
   success     = '';
   error       = '';
 
-  readonly isEditMode: boolean = false;
-
-  constructor(private cafeService: CafeService) {}
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['editReview'] && this.editReview) {
-      this.rating      = this.editReview.rating      ?? 0;
-      this.reviewText  = this.editReview.review_text ?? '';
-      this.dateVisited = this.editReview.date_visited
-        ? this.editReview.date_visited.substring(0, 10)
-        : '';
-      this.companions  = this.editReview.companions  ?? '';
-      this.bestDish    = this.editReview.best_dish   ?? '';
-      this.isVisited   = this.editReview.is_visited  ?? true;
-      this.isPublic    = this.editReview.is_public   ?? true;
-    }
+  constructor() {
+    // Pre-fill form fields when editing an existing review
+    effect(() => {
+      const review = this.editReview();
+      if (review) {
+        this.rating      = review.rating      ?? 0;
+        this.reviewText  = review.review_text ?? '';
+        this.dateVisited = review.date_visited
+          ? review.date_visited.substring(0, 10)
+          : '';
+        this.companions  = review.companions  ?? '';
+        this.bestDish    = review.best_dish   ?? '';
+        this.isVisited   = review.is_visited  ?? true;
+        this.isPublic    = review.is_public   ?? true;
+      }
+    });
   }
+
+  // ── Star interaction ──────────────────────────────────────────────────────
 
   setRating(value: number): void {
     this.rating = value;
@@ -65,6 +75,8 @@ export class ReviewForm implements OnChanges {
     return index <= (this.hoveredStar || this.rating);
   }
 
+  // ── Submit ────────────────────────────────────────────────────────────────
+
   onSubmit(): void {
     if (!this.rating) {
       this.error = 'Please select a star rating.';
@@ -75,7 +87,7 @@ export class ReviewForm implements OnChanges {
     this.error   = '';
     this.success = '';
 
-    if (this.editReview) {
+    if (this.editReview()) {
       this.submitUpdate();
     } else {
       this.submitCreate();
@@ -83,7 +95,7 @@ export class ReviewForm implements OnChanges {
   }
 
   private submitCreate(): void {
-    const cafe    = this.selectedCafe;
+    const cafe    = this.selectedCafe();
     const address = cafe.location?.display_address?.join(', ') ?? '';
     const category = cafe.categories?.map((c: any) => c.title).join(', ') ?? '';
 
@@ -126,7 +138,7 @@ export class ReviewForm implements OnChanges {
       is_public:    this.isPublic
     };
 
-    this.cafeService.updateReview(this.editReview._id, payload).subscribe({
+    this.cafeService.updateReview(this.editReview()._id, payload).subscribe({
       next: () => {
         this.success = '✅ Review updated!';
         this.loading = false;

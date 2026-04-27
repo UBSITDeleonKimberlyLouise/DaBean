@@ -1,17 +1,23 @@
-import { Component, OnInit } from '@angular/core';
-import { CafeService } from '../../services/cafe.service';
+// ============================================
+// Bean There, Done That — Profile Component
+// Author: [Student Name]
+// Date: 2025
+// Assignment: Cafe Tracker Application
+// ============================================
+
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { CommonModule, DatePipe } from '@angular/common';
-import { ReviewCard } from '../review-card/review-card';
-import { ReviewForm } from '../review-form/review-form';
+import { CafeService } from '../../services/cafe.service';
 
 @Component({
   selector:    'app-profile',
-  imports: [CommonModule, DatePipe, ReviewCard, ReviewForm],
   templateUrl: './profile.html',
   styleUrls:   ['./profile.css']
 })
-export class Profile implements OnInit {
+export class Profile {
+
+  private cafeService = inject(CafeService);
+  private authService = inject(AuthService);
 
   currentUser: any   = null;
   allReviews:  any[] = [];
@@ -20,9 +26,11 @@ export class Profile implements OnInit {
   loading        = true;
   error          = '';
 
-  activeFilter   = 'all';     
+  activeFilter   = 'all';       // 'all' | 'visited' | 'wishlist'
   editingReview: any = null;
   showEditForm      = false;
+
+  // ── Computed lists ───────────────────────────────────────────────────────
 
   get visitedList():  any[] { return this.allReviews.filter(r => r.is_visited); }
   get wishlistList(): any[] { return this.allReviews.filter(r => !r.is_visited); }
@@ -40,17 +48,14 @@ export class Profile implements OnInit {
     return avg.toFixed(1);
   }
 
-  constructor(
-    private cafeService: CafeService,
-    private authService: AuthService
-  ) {}
-
-  ngOnInit(): void {
+  constructor() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
     this.loadData();
   }
+
+  // ── Loaders ───────────────────────────────────────────────────────────────
 
   loadData(): void {
     this.loading = true;
@@ -72,6 +77,8 @@ export class Profile implements OnInit {
       error: ()     => {}                   // badges are non-critical
     });
   }
+
+  // ── CRUD ──────────────────────────────────────────────────────────────────
 
   startEdit(review: any): void {
     this.editingReview = review;

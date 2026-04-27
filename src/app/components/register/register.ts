@@ -1,15 +1,26 @@
-import { Component } from '@angular/core';
+// ============================================
+// Bean There, Done That — Register Component
+// Author: [Student Name]
+// Date: 2025
+// Assignment: Cafe Tracker Application
+// ============================================
+
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector:    'app-register',
-  imports: [FormsModule],
+  imports: [CommonModule],
   templateUrl: './register.html',
   styleUrls:   ['./register.css']
 })
 export class Register {
+
+  private authService = inject(AuthService);
+  private router      = inject(Router);
 
   username = '';
   email    = '';
@@ -17,11 +28,6 @@ export class Register {
   confirm  = '';
   loading  = false;
   error    = '';
-
-  constructor(
-    private authService: AuthService,
-    private router:      Router
-  ) {}
 
   onSubmit(): void {
     if (!this.username || !this.email || !this.password || !this.confirm) {

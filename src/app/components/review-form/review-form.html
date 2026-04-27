@@ -3,40 +3,55 @@
 
     <div class="form-header">
       <div class="form-header-info">
-        <h2 *ngIf="!editReview">Log Your Visit</h2>
-        <h2 *ngIf="editReview">Update Review</h2>
+        @if (!editReview()) {
+          <h2>Log Your Visit</h2>
+        }
+        @if (editReview()) {
+          <h2>Update Review</h2>
+        }
 
-        <p *ngIf="selectedCafe" class="form-cafe-name">
-          <strong>{{ selectedCafe.name }}</strong>
-          <span *ngIf="selectedCafe.location?.display_address">
-            — {{ selectedCafe.location.display_address.join(', ') }}
-          </span>
-        </p>
-        <p *ngIf="editReview" class="form-cafe-name">
-          <strong>{{ editReview.cafe_name }}</strong>
-        </p>
+        @if (selectedCafe()) {
+          <p class="form-cafe-name">
+            <strong>{{ selectedCafe().name }}</strong>
+            @if (selectedCafe().location?.display_address) {
+              <span>— {{ selectedCafe().location.display_address.join(', ') }}</span>
+            }
+          </p>
+        }
+        @if (editReview()) {
+          <p class="form-cafe-name">
+            <strong>{{ editReview().cafe_name }}</strong>
+          </p>
+        }
       </div>
     </div>
 
-    <div class="alert alert-success" *ngIf="success">{{ success }}</div>
-    <div class="alert alert-error"   *ngIf="error">{{ error }}</div>
+    @if (success) {
+      <div class="alert alert-success">{{ success }}</div>
+    }
+    @if (error) {
+      <div class="alert alert-error">{{ error }}</div>
+    }
 
-    <form (ngSubmit)="onSubmit()" #reviewForm="ngForm" novalidate>
+    <form (ngSubmit)="onSubmit()" novalidate>
 
       <div class="form-group">
         <label>Your Rating <span class="required">*</span></label>
         <div class="star-picker" (mouseleave)="clearHover()">
-          <button
-            type="button"
-            class="star-btn"
-            *ngFor="let i of [1,2,3,4,5]"
-            [class.filled]="getStarState(i)"
-            (mouseenter)="setHover(i)"
-            (click)="setRating(i)"
-            [attr.aria-label]="'Rate ' + i + ' out of 5'"
-          >★</button>
+          @for (i of [1,2,3,4,5]; track i) {
+            <button
+              type="button"
+              class="star-btn"
+              [class.filled]="getStarState(i)"
+              (mouseenter)="setHover(i)"
+              (click)="setRating(i)"
+              [attr.aria-label]="'Rate ' + i + ' out of 5'"
+            >★</button>
+          }
         </div>
-        <span class="rating-hint" *ngIf="rating">{{ rating }}/5 stars</span>
+        @if (rating) {
+          <span class="rating-hint">{{ rating }}/5 stars</span>
+        }
       </div>
 
       <div class="form-group">
@@ -63,7 +78,8 @@
           id="dateVisited"
           type="date"
           class="form-control"
-          [(ngModel)]="dateVisited"
+          [value]="dateVisited"
+          (input)="dateVisited = $any($event.target).value"
           name="dateVisited"
         />
       </div>
@@ -75,7 +91,8 @@
           type="text"
           class="form-control"
           placeholder="Solo, with friends, date..."
-          [(ngModel)]="companions"
+          [value]="companions"
+          (input)="companions = $any($event.target).value"
           name="companions"
         />
       </div>
@@ -87,7 +104,8 @@
           type="text"
           class="form-control"
           placeholder="Oat milk latte, mushroom toast..."
-          [(ngModel)]="bestDish"
+          [value]="bestDish"
+          (input)="bestDish = $any($event.target).value"
           name="bestDish"
         />
       </div>
@@ -98,10 +116,10 @@
           id="reviewText"
           class="form-control"
           placeholder="Cozy corner spot, great playlist, would visit again on a rainy afternoon..."
-          [(ngModel)]="reviewText"
+          (input)="reviewText = $any($event.target).value"
           name="reviewText"
           rows="4"
-        ></textarea>
+        >{{ reviewText }}</textarea>
       </div>
 
       <div class="form-group">
@@ -129,9 +147,15 @@
           class="btn btn-primary"
           [disabled]="loading"
         >
-          <span *ngIf="loading" class="spinner"></span>
-          <span *ngIf="!loading && !editReview">Save to Log ☕</span>
-          <span *ngIf="!loading &&  editReview">Update Review ✓</span>
+          @if (loading) {
+            <span class="spinner"></span>
+          }
+          @if (!loading && !editReview()) {
+            <span>Save to Log ☕</span>
+          }
+          @if (!loading && editReview()) {
+            <span>Update Review ✓</span>
+          }
         </button>
 
         <button type="button" class="btn btn-secondary" (click)="cancel()">

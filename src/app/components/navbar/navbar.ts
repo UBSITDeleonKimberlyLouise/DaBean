@@ -1,4 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+// ============================================
+// Bean There, Done That — Navbar Component
+// Author: [Student Name]
+// Date: 2025
+// Assignment: Cafe Tracker Application
+// ============================================
+
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -7,17 +14,15 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './navbar.html',
   styleUrls:   ['./navbar.css']
 })
-export class Navbar implements OnInit {
+export class Navbar {
+
+  private authService = inject(AuthService);
+  private router      = inject(Router);
 
   currentUser: any = null;
   menuOpen         = false;
 
-  constructor(
-    private authService: AuthService,
-    private router:      Router
-  ) {}
-
-  ngOnInit(): void {
+  constructor() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });

@@ -1,1 +1,74 @@
-<p>navbar works!</p>
+<nav class="navbar">
+  <div class="navbar-inner">
+
+    <!-- Brand -->
+    <a routerLink="/" class="brand" (click)="closeMenu()">
+      <span class="brand-icon">☕</span>
+      <span class="brand-name">Bean There</span>
+    </a>
+
+    <!-- Desktop Nav Links -->
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
+      <a routerLink="/dashboard" routerLinkActive="active">Discover</a>
+
+      @ngIf (currentUser) {
+        <a routerLink="/search" routerLinkActive="active">Search</a>
+        <a routerLink="/profile" routerLinkActive="active">My Logs</a>
+      }
+    </div>
+
+    <!-- Auth Buttons -->
+    <div class="nav-actions">
+
+      @ngIf (!currentUser) {
+        <a routerLink="/login" class="btn btn-secondary btn-sm">Log In</a>
+        <a routerLink="/register" class="btn btn-primary btn-sm">Sign Up</a>
+      } @else {
+        <span class="user-greeting">
+          Hey, <em>{{ currentUser.username }}</em> ☕
+        </span>
+        <button class="btn btn-secondary btn-sm" (click)="logout()">Log Out</button>
+      }
+
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button
+      class="hamburger"
+      (click)="toggleMenu()"
+      [class.open]="menuOpen"
+      aria-label="Menu"
+    >
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" [class.open]="menuOpen">
+
+    <a routerLink="/" (click)="closeMenu()">Home</a>
+    <a routerLink="/dashboard" (click)="closeMenu()">Discover</a>
+
+    @ngIf (currentUser) {
+      <a routerLink="/search" (click)="closeMenu()">Search Cafes</a>
+      <a routerLink="/profile" (click)="closeMenu()">My Logs</a>
+    }
+
+    <hr class="divider">
+
+    @ngIf (!currentUser) {
+      <a routerLink="/login" (click)="closeMenu()" class="btn btn-secondary w-full">Log In</a>
+      <a routerLink="/register" (click)="closeMenu()" class="btn btn-primary w-full mt-2">Sign Up</a>
+    } @else {
+      <span class="mobile-user">
+        Logged in as <strong>{{ currentUser.username }}</strong>
+      </span>
+      <button class="btn btn-secondary w-full mt-2" (click)="logout()">
+        Log Out
+      </button>
+    }
+
+  </div>
+</nav>

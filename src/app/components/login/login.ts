@@ -1,32 +1,25 @@
-// ============================================
-// Bean There, Done That — Login Component
-// Author: [Student Name]
-// Date: 2025
-// Assignment: Cafe Tracker Application
-// ============================================
-
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector:    'app-login',
+  selector: 'app-login',
+  standalone: true,
   templateUrl: './login.html',
-  styleUrls:   ['./login.css']
+  styleUrls: ['./login.css']
 })
 export class Login {
 
-  email    = '';
-  password = '';
-  loading  = false;
-  error    = '';
+  private authService = inject(AuthService);
+  private router      = inject(Router);
 
-  constructor(
-    private authService: AuthService,
-    private router:      Router
-  ) {}
+  email: string = '';
+  password: string = '';
+  loading: boolean = false;
+  error: string = '';
 
   onSubmit(): void {
+
     if (!this.email || !this.password) {
       this.error = 'Please fill in all fields.';
       return;
@@ -36,9 +29,11 @@ export class Login {
     this.error   = '';
 
     this.authService.login(this.email, this.password).subscribe({
-      next:  ()    => this.router.navigate(['/dashboard']),
-      error: (err) => {
-        this.error   = err.message;
+      next: () => {
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err: any) => {
+        this.error = err?.message || 'Login failed. Please try again.';
         this.loading = false;
       }
     });

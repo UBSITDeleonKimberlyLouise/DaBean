@@ -1,25 +1,30 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+// ============================================
+// Bean There, Done That — Review Card Component
+// Author: [Student Name]
+// Date: 2025
+// Assignment: Cafe Tracker Application
+// ============================================
 
+import { Component, input, output } from '@angular/core';
 
 @Component({
   selector:    'app-review-card',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './review-card.html',
   styleUrls:   ['./review-card.css']
 })
 export class ReviewCard {
 
-  @Input()  review:    any;
-  @Input()  isOwner  = false;
-  @Output() onEdit   = new EventEmitter<any>();
-  @Output() onDelete = new EventEmitter<string>();
+  review   = input<any>();
+  isOwner  = input<boolean>(false);
+  onEdit   = output<any>();
+  onDelete = output<string>();
 
+  /** Returns an array of length 5 for star rendering */
   getStars(rating: number): { filled: boolean }[] {
     return Array.from({ length: 5 }, (_, i) => ({ filled: i < rating }));
   }
 
+  /** Format ISO date to a friendly string */
   formatDate(dateStr: string): string {
     if (!dateStr) { return ''; }
     const d = new Date(dateStr);
@@ -31,10 +36,10 @@ export class ReviewCard {
   }
 
   emitEdit(): void {
-    this.onEdit.emit(this.review);
+    this.onEdit.emit(this.review());
   }
 
   emitDelete(): void {
-    this.onDelete.emit(this.review._id);
+    this.onDelete.emit(this.review()._id);
   }
 }

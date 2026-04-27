@@ -7,7 +7,7 @@
       </div>
       <div class="profile-info">
         <h1>{{ currentUser?.username }}'s Log</h1>
-        <p>Member since {{ currentUser?.date_joined | date:'MMMM yyyy' }}</p>
+        <p>Member since {{ formatJoinDate(currentUser?.date_joined) }}</p>
       </div>
     </div>
 
@@ -33,65 +33,86 @@
 
   <div class="profile-inner">
 
-    <section class="badges-section" *ngIf="badges.length">
-      <h2>🏆 Your Badges</h2>
-      <div class="badges-row">
-        <div class="badge-tile" *ngFor="let b of badges">
-          <span class="badge-emoji">{{ b.icon }}</span>
-          <span class="badge-name">{{ b.name }}</span>
-          <span class="badge-desc">{{ b.description }}</span>
+    @if (badges.length) {
+      <section class="badges-section">
+        <h2>🏆 Your Badges</h2>
+        <div class="badges-row">
+          @for (b of badges; track b.name) {
+            <div class="badge-tile">
+              <span class="badge-emoji">{{ b.icon }}</span>
+              <span class="badge-name">{{ b.name }}</span>
+              <span class="badge-desc">{{ b.description }}</span>
+            </div>
+          }
         </div>
+      </section>
+    }
+
+    @if (error) {
+      <div class="alert alert-error">{{ error }}</div>
+    }
+
+    @if (loading) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading your log...</p>
       </div>
-    </section>
+    }
 
-    <div class="alert alert-error" *ngIf="error">{{ error }}</div>
+    @if (!loading && allReviews.length) {
+      <div class="filter-tabs">
+        <button class="tab-btn" [class.active]="activeFilter==='all'" (click)="setFilter('all')">
+          All ({{ allReviews.length }})
+        </button>
+        <button class="tab-btn" [class.active]="activeFilter==='visited'" (click)="setFilter('visited')">
+          ✓ Visited ({{ visitedList.length }})
+        </button>
+        <button class="tab-btn" [class.active]="activeFilter==='wishlist'" (click)="setFilter('wishlist')">
+          ♡ Wishlist ({{ wishlistList.length }})
+        </button>
+      </div>
+    }
 
-    <div class="loading-state" *ngIf="loading">
-      <div class="spinner"></div>
-      <p>Loading your log...</p>
-    </div>
+    @if (!loading && filteredReviews.length) {
+      <div class="reviews-grid">
+        @for (r of filteredReviews; track r.id) {
+          <app-review-card
+            [review]="r"
+            [isOwner]="true"
+            (onEdit)="startEdit($event)"
+            (onDelete)="deleteReview($event)"
+          ></app-review-card>
+        }
+      </div>
+    }
 
-    <div class="filter-tabs" *ngIf="!loading && allReviews.length">
-      <button class="tab-btn" [class.active]="activeFilter==='all'"      (click)="setFilter('all')">
-        All ({{ allReviews.length }})
-      </button>
-      <button class="tab-btn" [class.active]="activeFilter==='visited'"  (click)="setFilter('visited')">
-        ✓ Visited ({{ visitedList.length }})
-      </button>
-      <button class="tab-btn" [class.active]="activeFilter==='wishlist'" (click)="setFilter('wishlist')">
-        ♡ Wishlist ({{ wishlistList.length }})
-      </button>
-    </div>
+    @if (!loading && !allReviews.length && !error) {
+      <div class="empty-state">
+        <span class="empty-icon">📋</span>
+        <h3>Your log is empty</h3>
+        <p>Start by searching for a cafe to add your first entry.</p>
+        <a routerLink="/search" class="btn btn-accent mt-3">Search Cafes 🔍</a>
+      </div>
+    }
 
-    <div class="reviews-grid" *ngIf="!loading && filteredReviews.length">
-      <app-review-card
-        *ngFor="let r of filteredReviews"
-        [review]="r"
-        [isOwner]="true"
-        (onEdit)="startEdit($event)"
-        (onDelete)="deleteReview($event)"
-      ></app-review-card>
-    </div>
+    @if (showEditForm && editingReview) {
+      <div id="edit-form-anchor">
+        <hr class="divider">
+        <app-review-form
+          [editReview]="editingReview"
+          (onSaved)="onEditSaved()"
+          (onCancel)="cancelEdit()"
+        ></app-review-form>
+      </div>
+    }
 
-    <div class="empty-state" *ngIf="!loading && !allReviews.length && !error">
-      <span class="empty-icon">📋</span>
-      <h3>Your log is empty</h3>
-      <p>Start by searching for a cafe to add your first entry.</p>
-      <a routerLink="/search" class="btn btn-accent mt-3">Search Cafes 🔍</a>
-    </div>
+    @if (!loading && allReviews.length) {
+      <div class="add-more">
+        <a routerLink="/search" class="btn btn-secondary">
+          + Add Another Cafe
+        </a>
+      </div>
+    }
 
-    <div id="edit-form-anchor" *ngIf="showEditForm && editingReview">
-      <hr class="divider">
-      <app-review-form
-        [editReview]="editingReview"
-        (onSaved)="onEditSaved()"
-        (onCancel)="cancelEdit()"
-      ></app-review-form>
-    </div>
-    <div class="add-more" *ngIf="!loading && allReviews.length">
-      <a routerLink="/search" class="btn btn-secondary">
-        + Add Another Cafe
-      </a>
-    </div>
   </div>
 </div>

@@ -1,4 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+// ============================================
+// Bean There, Done That — Home Component
+// Author: [Student Name]
+// Date: 2025
+// Assignment: Cafe Tracker Application
+// ============================================
+
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -6,7 +13,9 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './home.html',
   styleUrls:   ['./home.css']
 })
-export class Home implements OnInit {
+export class Home {
+
+  private authService = inject(AuthService);
 
   isLoggedIn = false;
 
@@ -33,9 +42,7 @@ export class Home implements OnInit {
     }
   ];
 
-  constructor(private authService: AuthService) {}
-
-  ngOnInit(): void {
+  constructor() {
     this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
     });

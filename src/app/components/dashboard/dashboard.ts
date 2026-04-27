@@ -1,13 +1,23 @@
-import { Component, OnInit } from '@angular/core';
-import { CafeService } from '../../services/cafe.service';
+// ============================================
+// Bean There, Done That — Dashboard Component
+// Author: [Student Name]
+// Date: 2025
+// Assignment: Cafe Tracker Application
+// ============================================
+
+import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
+import { CafeService } from '../../services/cafe.service';
 
 @Component({
   selector:    'app-dashboard',
   templateUrl: './dashboard.html',
   styleUrls:   ['./dashboard.css']
 })
-export class Dashboard implements OnInit {
+export class Dashboard {
+
+  private cafeService = inject(CafeService);
+  private authService = inject(AuthService);
 
   publicReviews: any[] = [];
   myReviews:     any[] = [];
@@ -25,12 +35,7 @@ export class Dashboard implements OnInit {
     'Cafes', 'Bakeries', 'Desserts', 'Italian', 'Asian Fusion'
   ];
 
-  constructor(
-    private cafeService: CafeService,
-    private authService: AuthService
-  ) {}
-
-  ngOnInit(): void {
+  constructor() {
     this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
     });

@@ -7,9 +7,11 @@
       <p>Create your free coffee journal</p>
     </div>
 
-    <div class="alert alert-error" *ngIf="error">{{ error }}</div>
+    @if (error) {
+      <div class="alert alert-error">{{ error }}</div>
+    }
 
-    <form (ngSubmit)="onSubmit()" #regForm="ngForm" novalidate>
+    <form (ngSubmit)="onSubmit()" novalidate>
 
       <div class="form-group">
         <label for="username">Username</label>
@@ -18,7 +20,8 @@
           type="text"
           class="form-control"
           placeholder="coffeelover99"
-          [(ngModel)]="username"
+          [value]="username"
+          (input)="username = $any($event.target).value"
           name="username"
           required
         />
@@ -31,7 +34,8 @@
           type="email"
           class="form-control"
           placeholder="your@email.com"
-          [(ngModel)]="email"
+          [value]="email"
+          (input)="email = $any($event.target).value"
           name="email"
           required
         />
@@ -44,7 +48,8 @@
           type="password"
           class="form-control"
           placeholder="At least 6 characters"
-          [(ngModel)]="password"
+          [value]="password"
+          (input)="password = $any($event.target).value"
           name="password"
           required
         />
@@ -57,7 +62,8 @@
           type="password"
           class="form-control"
           placeholder="••••••••"
-          [(ngModel)]="confirm"
+          [value]="confirm"
+          (input)="confirm = $any($event.target).value"
           name="confirm"
           required
         />
@@ -68,8 +74,12 @@
         class="btn btn-primary w-full"
         [disabled]="loading"
       >
-        <span *ngIf="loading" class="spinner"></span>
-        <span *ngIf="!loading">Create Account ✨</span>
+        @if (loading) {
+          <span class="spinner"></span>
+        }
+        @if (!loading) {
+          <span>Create Account ✨</span>
+        }
       </button>
 
     </form>

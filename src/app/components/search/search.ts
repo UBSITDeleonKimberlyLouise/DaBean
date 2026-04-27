@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CafeService } from '../../services/cafe.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,8 @@ import { ReviewForm } from '../review-form/review-form';
 })
 export class Search {
 
+  private cafeService = inject(CafeService);
+
   searchTerm      = '';
   searchLocation  = '';
   results:  any[] = [];
@@ -21,11 +23,11 @@ export class Search {
   error           = '';
   searched        = false;
 
+  // The cafe picked to be logged
   selectedCafe:    any    = null;
   showReviewForm         = false;
 
-  constructor(private cafeService: CafeService) {}
-
+  // ── Search ────────────────────────────────────────────────────────────────
 
   search(): void {
     if (!this.searchTerm && !this.searchLocation) {
@@ -54,15 +56,20 @@ export class Search {
       });
   }
 
+  // ── Select a result to log ────────────────────────────────────────────────
+
   selectCafe(business: any): void {
     this.selectedCafe   = business;
     this.showReviewForm = true;
 
+    // Smooth-scroll to the form
     setTimeout(() => {
       const el = document.getElementById('review-form-anchor');
       if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     }, 80);
   }
+
+  // ── After review saved ────────────────────────────────────────────────────
 
   onReviewSaved(): void {
     this.showReviewForm = false;
@@ -78,11 +85,13 @@ export class Search {
     this.selectedCafe   = null;
   }
 
+  /** Extract primary category label from Yelp categories array */
   getCategoryLabel(categories: any[]): string {
     if (!categories || categories.length === 0) { return ''; }
     return categories.map(c => c.title).join(', ');
   }
 
+  /** Extract price range or return empty */
   getPriceLabel(price: string): string {
     return price ?? '';
   }

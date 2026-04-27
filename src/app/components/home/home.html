@@ -1,1 +1,98 @@
-<p>home works!</p>
+<main class="home-page">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-grain"></div>
+
+    <div class="hero-content fade-in-up">
+      <span class="hero-eyebrow">☕ Your Personal Cafe Journal</span>
+
+      <h1 class="hero-title">
+        Bean There,<br>
+        <em>Done That.</em>
+      </h1>
+
+      <p class="hero-subtitle">
+        Search for cafes, save your favorites, rate your experiences, and build
+        your own cozy little log — one cup at a time.
+      </p>
+
+      <div class="hero-cta">
+
+        @ngIf (!isLoggedIn) {
+          <a routerLink="/register" class="btn btn-primary">
+            Start Your Log ☕
+          </a>
+        }
+
+        @ngIf (isLoggedIn) {
+          <a routerLink="/search" class="btn btn-primary">
+            Search Cafes 🔍
+          </a>
+        }
+
+        <a routerLink="/dashboard" class="btn btn-secondary">
+          Explore Reviews
+        </a>
+
+      </div>
+    </div>
+
+    <div class="hero-illustration" aria-hidden="true">
+      <div class="cup-wrapper">
+        <div class="steam s1"></div>
+        <div class="steam s2"></div>
+        <div class="steam s3"></div>
+
+        <div class="cup-body">
+          <div class="cup-liquid"></div>
+          <div class="cup-foam"></div>
+          <div class="cup-art">♡</div>
+        </div>
+
+        <div class="cup-saucer"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="features-inner">
+      <p class="section-eyebrow">What you can do</p>
+      <h2 class="section-title">
+        Everything you need<br>for your coffee journey
+      </h2>
+
+      <div class="feature-grid">
+
+        @for (f of features; track f.title; let i = $index) {
+          <div
+            class="feature-card card fade-in-up"
+            [style.animation-delay]="(i * 0.1) + 's'"
+          >
+            <span class="feature-icon">{{ f.icon }}</span>
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.desc }}</p>
+          </div>
+        }
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  @ngIf (!isLoggedIn) {
+    <section class="cta-banner">
+      <div class="cta-inner">
+        <h2>Ready to start brewing your log?</h2>
+        <p>Join the community and never forget a great cup again.</p>
+
+        <div class="cta-buttons">
+          <a routerLink="/register" class="btn btn-accent">Create Free Account</a>
+          <a routerLink="/login" class="btn btn-secondary">I Have an Account</a>
+        </div>
+      </div>
+    </section>
+  }
+
+</main>

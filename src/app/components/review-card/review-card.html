@@ -1,79 +1,106 @@
-<div class="review-card card fade-in-up" *ngIf="review">
+@if (review()) {
+  <div class="review-card card fade-in-up">
 
-  <div class="card-top">
-    <div
-      class="cafe-thumbnail"
-      [style.background-image]="review.image_url ? 'url(' + review.image_url + ')' : 'none'"
-    >
-      <span *ngIf="!review.image_url" class="placeholder-icon">☕</span>
-    </div>
-
-    <div class="card-info">
-      <div class="card-badges">
-        <span class="badge" [ngClass]="review.is_visited ? 'badge-visited' : 'badge-wishlist'">
-          {{ review.is_visited ? '✓ Visited' : '♡ Wishlist' }}
-        </span>
-        <span class="badge" [ngClass]="review.is_public ? 'badge-public' : 'badge-private'"
-              *ngIf="isOwner">
-          {{ review.is_public ? '🌐 Public' : '🔒 Private' }}
-        </span>
+    <div class="card-top">
+      <div
+        class="cafe-thumbnail"
+        [style.background-image]="review().image_url ? 'url(' + review().image_url + ')' : 'none'"
+      >
+        @if (!review().image_url) {
+          <span class="placeholder-icon">☕</span>
+        }
       </div>
 
-      <h3 class="cafe-name">{{ review.cafe_name }}</h3>
+      <div class="card-info">
+        <div class="card-badges">
+          <span
+            class="badge"
+            [class.badge-visited]="review().is_visited"
+            [class.badge-wishlist]="!review().is_visited"
+          >
+            {{ review().is_visited ? '✓ Visited' : '♡ Wishlist' }}
+          </span>
+          @if (isOwner) {
+            <span
+              class="badge"
+              [class.badge-public]="review().is_public"
+              [class.badge-private]="!review().is_public"
+            >
+              {{ review().is_public ? '🌐 Public' : '🔒 Private' }}
+            </span>
+          }
+        </div>
 
-      <p class="cafe-address" *ngIf="review.address">
-        📍 {{ review.address }}
+        <h3 class="cafe-name">{{ review().cafe_name }}</h3>
+
+        @if (review().address) {
+          <p class="cafe-address">
+            📍 {{ review().address }}
+          </p>
+        }
+
+        @if (review().category) {
+          <p class="cafe-category">
+            🏷 {{ review().category }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="rating-row">
+      <div class="stars">
+        @for (s of getStars(review().rating); track $index) {
+          <span class="star" [class.filled]="s.filled">★</span>
+        }
+      </div>
+      <span class="rating-label">{{ review().rating }}/5</span>
+    </div>
+
+    @if (review().review_text) {
+      <p class="review-text">
+        "{{ review().review_text }}"
       </p>
+    }
 
-      <p class="cafe-category" *ngIf="review.category">
-        🏷 {{ review.category }}
-      </p>
+    <div class="meta-grid">
+      @if (review().best_dish) {
+        <div class="meta-item">
+          <span class="meta-label">🍽 Best Dish</span>
+          <span class="meta-value">{{ review().best_dish }}</span>
+        </div>
+      }
+      @if (review().companions) {
+        <div class="meta-item">
+          <span class="meta-label">👥 With</span>
+          <span class="meta-value">{{ review().companions }}</span>
+        </div>
+      }
+      @if (review().date_visited) {
+        <div class="meta-item">
+          <span class="meta-label">📅 Visited</span>
+          <span class="meta-value">{{ formatDate(review().date_visited) }}</span>
+        </div>
+      }
     </div>
+
+    @if (!isOwner && review().username) {
+      <div class="card-author">
+        <span class="author-tag">by <strong>{{ review().username }}</strong></span>
+      </div>
+    }
+
+    @if (isOwner) {
+      <div class="card-actions">
+        <button class="btn btn-secondary btn-sm" (click)="emitEdit()">
+          ✏️ Edit
+        </button>
+        <button class="btn btn-danger btn-sm" (click)="emitDelete()">
+          🗑 Remove
+        </button>
+      </div>
+    }
+
   </div>
-
-  <hr class="divider">
-
-  <div class="rating-row">
-    <div class="stars">
-      <span
-        class="star"
-        *ngFor="let s of getStars(review.rating)"
-        [class.filled]="s.filled"
-      >★</span>
-    </div>
-    <span class="rating-label">{{ review.rating }}/5</span>
-  </div>
-
-  <p class="review-text" *ngIf="review.review_text">
-    "{{ review.review_text }}"
-  </p>
-
-  <div class="meta-grid">
-    <div class="meta-item" *ngIf="review.best_dish">
-      <span class="meta-label">🍽 Best Dish</span>
-      <span class="meta-value">{{ review.best_dish }}</span>
-    </div>
-    <div class="meta-item" *ngIf="review.companions">
-      <span class="meta-label">👥 With</span>
-      <span class="meta-value">{{ review.companions }}</span>
-    </div>
-    <div class="meta-item" *ngIf="review.date_visited">
-      <span class="meta-label">📅 Visited</span>
-      <span class="meta-value">{{ formatDate(review.date_visited) }}</span>
-    </div>
-  </div>
-
-  <div class="card-author" *ngIf="!isOwner && review.username">
-    <span class="author-tag">by <strong>{{ review.username }}</strong></span>
-  </div>
-
-  <div class="card-actions" *ngIf="isOwner">
-    <button class="btn btn-secondary btn-sm" (click)="emitEdit()">
-      ✏️ Edit
-    </button>
-    <button class="btn btn-danger btn-sm" (click)="emitDelete()">
-      🗑 Remove
-    </button>
-  </div>
-
-</div>
+}
