@@ -4,9 +4,8 @@ import { CafeService } from '../../services/cafe.service';
 import { ReviewCard } from '../review-card/review-card';
 import { ReviewForm } from '../review-form/review-form';
 
-
 @Component({
-  selector: 'app-profile',
+  selector:    'app-profile',
   templateUrl: './profile.html',
   styleUrls: ['./profile.css'],
   standalone: true,
@@ -24,8 +23,7 @@ export class Profile {
   loading = true;
   error = '';
 
-  activeFilter: 'all' | 'visited' | 'wishlist' = 'all';
-
+  activeFilter   = 'all';       // 'all' | 'visited' | 'wishlist'
   editingReview: any = null;
   showEditForm = false;
 
@@ -62,6 +60,9 @@ export class Profile {
     const avg = rated.reduce((sum, r) => sum + r.rating, 0) / rated.length;
     return avg.toFixed(1);
   }
+
+
+  // ── Loaders ───────────────────────────────────────────────────────────────
 
   loadData(): void {
     this.loading = true;
@@ -104,6 +105,7 @@ export class Profile {
     this.cancelEdit();
     this.loadData();
   }
+
 
   deleteReview(id: string): void {
     if (!confirm('Delete this review?')) return;
