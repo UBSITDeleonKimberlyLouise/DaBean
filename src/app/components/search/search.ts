@@ -43,7 +43,7 @@ export class Search {
     this.showReviewForm = false;
 
     this.cafeService
-      .searchCafes(this.searchTerm, this.searchLocation)
+      .searchCafes({ term: this.searchTerm, location: this.searchLocation })
       .subscribe({
         next: (data) => {
           this.results = data.businesses ?? data ?? [];

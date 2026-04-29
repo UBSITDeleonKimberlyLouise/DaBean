@@ -3,23 +3,94 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
+export type YelpBusiness = {
+  id:           string;
+  name:         string;
+  image_url:    string;
+  url:          string;
+  review_count: number;
+  rating:       number;
+  price?:       string;
+  location: {
+    address1:        string;
+    city:            string;
+    state:           string;
+    zip_code:        string;
+    display_address: string[];
+  };
+  phone:         string;
+  display_phone: string;
+  distance?:     number;
+  categories:    { alias: string; title: string }[];
+  hours?:        { is_open_now: boolean }[];
+};
+
+export type YelpSearchResponse = {
+  businesses: YelpBusiness[];
+  total:      number;
+  region: {
+    center: { longitude: number; latitude: number };
+  };
+};
+
+export type YelpSortBy = 'best_match' | 'rating' | 'review_count' | 'distance';
+
+export type YelpSearchOptions = {
+  term?:      string;
+  location?:  string;
+  latitude?:  number;
+  longitude?: number;
+  limit?:     number;
+  offset?:    number;
+  sort_by?:   YelpSortBy;
+  price?:     string;
+  open_now?:  boolean;
+};
+
 @Injectable({ providedIn: 'root' })
 export class CafeService {
 
-  private readonly apiUrl = 'https://bean-there-api.onrender.com/api';
+  private readonly apiUrl   = 'https://bean-there-api.onrender.com/api';
+  private readonly yelpBase = '/api/yelp';   // proxied → https://api.yelp.com
 
   constructor(
     private http:        HttpClient,
     private authService: AuthService
   ) {}
 
-  searchCafes(term: string, location: string): Observable<any> {
-    const params = new HttpParams()
-      .set('term',     term     || 'coffee')
-      .set('location', location || 'Manila');
+  searchCafes(options: YelpSearchOptions): Observable<YelpSearchResponse> {
+    let params = new HttpParams()
+      .set('categories', 'cafes,coffee')
+      .set('term',       options.term    ?? 'cafe')
+      .set('limit',      String(options.limit  ?? 10))
+      .set('sort_by',    options.sort_by ?? 'best_match');
+
+    if (options.location) {
+      params = params.set('location', options.location);
+    }
+    if (options.latitude != null && options.longitude != null) {
+      params = params
+        .set('latitude',  String(options.latitude))
+        .set('longitude', String(options.longitude));
+    }
+    if (options.offset != null) {
+      params = params.set('offset', String(options.offset));
+    }
+    if (options.price) {
+      params = params.set('price', options.price);
+    }
+    if (options.open_now) {
+      params = params.set('open_now', 'true');
+    }
 
     return this.http
-      .get(`${this.apiUrl}/search`, { params })
+      .get<YelpSearchResponse>(`${this.yelpBase}/v3/businesses/search`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  getCafeDetails(yelpId: string): Observable<YelpBusiness> {
+    return this.http
+      .get<YelpBusiness>(`${this.yelpBase}/v3/businesses/${yelpId}`)
       .pipe(catchError(this.handleError));
   }
 
