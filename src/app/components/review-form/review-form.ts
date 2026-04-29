@@ -1,10 +1,3 @@
-// ============================================
-// Bean There, Done That — Review Form Component
-// Author: [Student Name]
-// Date: 2025
-// Assignment: Cafe Tracker Application
-// ============================================
-
 import { Component, input, output, effect, inject } from '@angular/core';
 import { CafeService } from '../../services/cafe.service';
 
@@ -17,15 +10,15 @@ export class ReviewForm {
 
   private cafeService = inject(CafeService);
 
-  // Passed in from Search when adding a new review
+  // ── Inputs (signals) ─────────────────────────────
   selectedCafe = input<any>(null);
-  // Passed in from Profile when editing an existing review
   editReview   = input<any>(null);
 
+  // ── Outputs ──────────────────────────────────────
   onSaved  = output<void>();
   onCancel = output<void>();
 
-  // Form fields
+  // ── Form fields ──────────────────────────────────
   rating      = 0;
   reviewText  = '';
   dateVisited = '';
@@ -40,24 +33,45 @@ export class ReviewForm {
   error       = '';
 
   constructor() {
-    // Pre-fill form fields when editing an existing review
     effect(() => {
       const review = this.editReview();
+
       if (review) {
-        this.rating      = review.rating      ?? 0;
+        this.rating      = review.rating ?? 0;
         this.reviewText  = review.review_text ?? '';
         this.dateVisited = review.date_visited
           ? review.date_visited.substring(0, 10)
           : '';
-        this.companions  = review.companions  ?? '';
-        this.bestDish    = review.best_dish   ?? '';
-        this.isVisited   = review.is_visited  ?? true;
-        this.isPublic    = review.is_public   ?? true;
+        this.companions  = review.companions ?? '';
+        this.bestDish    = review.best_dish ?? '';
+        this.isVisited   = review.is_visited ?? true;
+        this.isPublic    = review.is_public ?? true;
       }
     });
   }
 
-  // ── Star interaction ──────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────
+  // 🔧 ADDITION (fix for your Profile workaround)
+  // ────────────────────────────────────────────────
+
+  review: any = null;
+
+  setReview(data: any) {
+    this.review = data;
+
+    // If editing via Profile workaround, sync values
+    if (data) {
+      this.rating      = data.rating ?? 0;
+      this.reviewText  = data.review_text ?? '';
+      this.dateVisited = data.date_visited?.substring(0, 10) ?? '';
+      this.companions  = data.companions ?? '';
+      this.bestDish    = data.best_dish ?? '';
+      this.isVisited   = data.is_visited ?? true;
+      this.isPublic    = data.is_public ?? true;
+    }
+  }
+
+  // ── Star interaction ─────────────────────────────
 
   setRating(value: number): void {
     this.rating = value;
@@ -75,7 +89,7 @@ export class ReviewForm {
     return index <= (this.hoveredStar || this.rating);
   }
 
-  // ── Submit ────────────────────────────────────────────────────────────────
+  // ── Submit ───────────────────────────────────────
 
   onSubmit(): void {
     if (!this.rating) {
@@ -84,10 +98,13 @@ export class ReviewForm {
     }
 
     this.loading = true;
-    this.error   = '';
+    this.error = '';
     this.success = '';
 
-    if (this.editReview()) {
+    // Use signal OR fallback to manual setReview()
+    const editMode = this.editReview() || this.review;
+
+    if (editMode) {
       this.submitUpdate();
     } else {
       this.submitCreate();
@@ -95,8 +112,15 @@ export class ReviewForm {
   }
 
   private submitCreate(): void {
-    const cafe    = this.selectedCafe();
-    const address = cafe.location?.display_address?.join(', ') ?? '';
+    const cafe = this.selectedCafe();
+
+    if (!cafe) {
+      this.error = 'No cafe selected.';
+      this.loading = false;
+      return;
+    }
+
+    const address  = cafe.location?.display_address?.join(', ') ?? '';
     const category = cafe.categories?.map((c: any) => c.title).join(', ') ?? '';
 
     const payload = {
@@ -121,13 +145,21 @@ export class ReviewForm {
         setTimeout(() => this.onSaved.emit(), 1200);
       },
       error: (err) => {
-        this.error   = err.message;
+        this.error = err.message;
         this.loading = false;
       }
     });
   }
 
   private submitUpdate(): void {
+    const review = this.editReview() || this.review;
+
+    if (!review?._id) {
+      this.error = 'Missing review ID.';
+      this.loading = false;
+      return;
+    }
+
     const payload = {
       rating:       this.rating,
       review_text:  this.reviewText,
@@ -138,14 +170,14 @@ export class ReviewForm {
       is_public:    this.isPublic
     };
 
-    this.cafeService.updateReview(this.editReview()._id, payload).subscribe({
+    this.cafeService.updateReview(review._id, payload).subscribe({
       next: () => {
         this.success = '✅ Review updated!';
         this.loading = false;
         setTimeout(() => this.onSaved.emit(), 1200);
       },
       error: (err) => {
-        this.error   = err.message;
+        this.error = err.message;
         this.loading = false;
       }
     });

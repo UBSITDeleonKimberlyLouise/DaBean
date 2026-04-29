@@ -67,22 +67,18 @@
     }
 
     @if (!loading && filteredReviews.length) {
-      <div class="filter-tabs">
 
+      <div class="filter-tabs">
         <button (click)="setFilter('all')">All</button>
         <button (click)="setFilter('visited')">Visited</button>
         <button (click)="setFilter('wishlist')">Wishlist</button>
-
       </div>
 
       <div class="reviews-grid">
 
         @for (r of filteredReviews; track r._id) {
-          <app-review-card
-            [review]="r"
-            (onEdit)="startEdit($event)"
-            (onDelete)="deleteReview($event)"
-          ></app-review-card>
+          <app-review-card #card></app-review-card>
+          {{ card.setReview(r) }}
         }
 
       </div>
@@ -97,11 +93,8 @@
     }
 
     @if (showEditForm && editingReview) {
-      <app-review-form
-        [editReview]="editingReview"
-        (onSaved)="onEditSaved()"
-        (onCancel)="cancelEdit()"
-      ></app-review-form>
+      <app-review-form #form></app-review-form>
+      {{ form.setReview(editingReview) }}
     }
 
   </div>

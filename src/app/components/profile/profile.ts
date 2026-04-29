@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { CafeService } from '../../services/cafe.service';
 import { ReviewCard } from '../review-card/review-card';
@@ -11,7 +11,7 @@ import { ReviewForm } from '../review-form/review-form';
   standalone: true,
   imports: [ReviewCard, ReviewForm]
 })
-export class Profile {
+export class Profile implements OnInit {
 
   private cafeService = inject(CafeService);
   private authService = inject(AuthService);
@@ -23,7 +23,7 @@ export class Profile {
   loading = true;
   error = '';
 
-  activeFilter   = 'all';       // 'all' | 'visited' | 'wishlist'
+  activeFilter: 'all' | 'visited' | 'wishlist' = 'all';
   editingReview: any = null;
   showEditForm = false;
 
@@ -31,11 +31,32 @@ export class Profile {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
-
-    this.loadData();
   }
 
-  // safer getters (prevents undefined crashes)
+  ngOnInit(): void {
+    this.loadData();
+
+    // ✅ Listen to custom events from ReviewCard
+    window.addEventListener('reviewDelete', (e: any) => {
+      this.deleteReview(e.detail);
+    });
+
+    window.addEventListener('reviewEdit', (e: any) => {
+      this.startEdit(e.detail);
+    });
+
+    // (optional) if your ReviewForm also emits events
+    window.addEventListener('reviewSaved', () => {
+      this.onEditSaved();
+    });
+
+    window.addEventListener('reviewCancel', () => {
+      this.cancelEdit();
+    });
+  }
+
+  // ── Computed lists ─────────────────────────────
+
   get visitedList(): any[] {
     return (this.allReviews ?? []).filter(r => r.is_visited);
   }
@@ -45,12 +66,9 @@ export class Profile {
   }
 
   get filteredReviews(): any[] {
-    const list = this.allReviews ?? [];
-
     if (this.activeFilter === 'visited') return this.visitedList;
     if (this.activeFilter === 'wishlist') return this.wishlistList;
-
-    return list;
+    return this.allReviews ?? [];
   }
 
   get averageRating(): string {
@@ -61,8 +79,7 @@ export class Profile {
     return avg.toFixed(1);
   }
 
-
-  // ── Loaders ───────────────────────────────────────────────────────────────
+  // ── Data loading ─────────────────────────────
 
   loadData(): void {
     this.loading = true;
@@ -82,10 +99,11 @@ export class Profile {
     this.cafeService.getUserBadges().subscribe({
       next: (data) => {
         this.badges = data?.badges ?? [];
-      },
-      error: () => {}
+      }
     });
   }
+
+  // ── UI actions ─────────────────────────────
 
   setFilter(f: 'all' | 'visited' | 'wishlist'): void {
     this.activeFilter = f;
@@ -105,7 +123,6 @@ export class Profile {
     this.cancelEdit();
     this.loadData();
   }
-
 
   deleteReview(id: string): void {
     if (!confirm('Delete this review?')) return;
