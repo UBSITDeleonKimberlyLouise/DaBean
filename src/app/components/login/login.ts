@@ -1,22 +1,23 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
+  selector:    'app-login',
+  standalone:  true,
+  imports:     [RouterLink],
   templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  styleUrls:   ['./login.css']
 })
 export class Login {
 
   private authService = inject(AuthService);
   private router      = inject(Router);
 
-  email: string = '';
+  email:    string = '';
   password: string = '';
-  loading: boolean = false;
-  error: string = '';
+  loading:  boolean = false;
+  error:    string = '';
 
   onSubmit(): void {
 
@@ -33,7 +34,7 @@ export class Login {
         this.router.navigate(['/dashboard']);
       },
       error: (err: any) => {
-        this.error = err?.message || 'Login failed. Please try again.';
+        this.error   = err?.message || 'Login failed. Please try again.';
         this.loading = false;
       }
     });

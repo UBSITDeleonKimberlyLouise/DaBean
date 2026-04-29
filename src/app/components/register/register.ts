@@ -6,14 +6,15 @@
 // ============================================
 
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 
 
 @Component({
   selector:    'app-register',
-  imports: [CommonModule],
+  standalone:  true,
+  imports:     [CommonModule, RouterLink],
   templateUrl: './register.html',
   styleUrls:   ['./register.css']
 })

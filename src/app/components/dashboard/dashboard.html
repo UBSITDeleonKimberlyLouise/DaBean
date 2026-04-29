@@ -1,62 +1,242 @@
-<div class="auth-page">
-  <div class="auth-card card fade-in-up">
+<div class="dashboard-page">
 
-    <div class="auth-header">
-      <span class="auth-icon">☕</span>
-      <h1>Welcome back</h1>
-      <p>Log in to your coffee journal</p>
+  <!-- ── Page Header ─────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <p class="section-eyebrow">Bean There, Done That</p>
+      <h1>@if (isLoggedIn) { Welcome back ☕ } @else { Discover Cafes }</h1>
+      <p class="header-sub">
+        @if (isLoggedIn) {
+          Your coffee journal awaits.
+        } @else {
+          Search cafes freely — create an account to log your visits.
+        }
+      </p>
+    </div>
+  </div>
+
+  <div class="dashboard-inner">
+
+    <!-- ── Guest: Cafe Search ──────────────────────────────────── -->
+    <div class="filters-bar">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label>Cafe / Keyword</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="espresso, matcha, brunch…"
+            [(ngModel)]="searchTerm"
+            (keyup.enter)="searchCafes()"
+          />
+        </div>
+        <div class="filter-group">
+          <label>Location</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="City or address…"
+            [(ngModel)]="searchLocation"
+            (keyup.enter)="searchCafes()"
+          />
+        </div>
+        <div class="filter-group">
+          <label>Sort By</label>
+          <select class="form-control" [(ngModel)]="sortBy">
+            <option value="best_match">Best Match</option>
+            <option value="rating">Top Rated</option>
+            <option value="review_count">Most Reviewed</option>
+            <option value="distance">Nearest</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary" (click)="searchCafes()" [disabled]="loading">
+            Search
+          </button>
+          <button class="btn btn-outline" (click)="useMyLocation()" title="Use my location">
+            🧭
+          </button>
+        </div>
+      </div>
     </div>
 
     @if (error) {
-      <div class="alert alert-error">
-        {{ error }}
+      <div class="alert alert-error">{{ error }}</div>
+    }
+
+    <!-- Search results -->
+    @if (loading && searched) {
+      <div class="loading-state">
+        <span class="spinner"></span>
+        <span>Finding cafes…</span>
       </div>
     }
 
-    <form (ngSubmit)="onSubmit()" novalidate>
+    @if (searched && !loading && businesses.length === 0 && !error) {
+      <p class="empty-msg">No cafes found. Try a different location or keyword.</p>
+    }
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          class="form-control"
-          placeholder="your@email.com"
-          (input)="email = $any($event.target).value"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          class="form-control"
-          placeholder="••••••••"
-          (input)="password = $any($event.target).value"
-          required
-        />
-      </div>
-
-      <button
-        type="submit"
-        class="btn btn-primary w-full"
-        [disabled]="loading"
-      >
-        @if (loading) {
-          <span class="spinner"></span>
-        } @else {
-          <span>Log In ☕</span>
+    @if (businesses.length > 0) {
+      <div class="reviews-grid" style="margin-bottom: 48px;">
+        @for (biz of businesses; track biz.id) {
+          <div class="card">
+            @if (biz.image_url) {
+              <img
+                style="width:100%;height:160px;object-fit:cover;border-radius:var(--radius-lg) var(--radius-lg) 0 0;"
+                [src]="biz.image_url"
+                [alt]="biz.name"
+                loading="lazy"
+              />
+            }
+            <div style="padding: 16px 18px 18px;">
+              <h3 style="margin:0 0 4px;">
+                <a [href]="biz.url" target="_blank" rel="noopener"
+                   style="color:var(--espresso);text-decoration:none;">{{ biz.name }}</a>
+              </h3>
+              <p style="margin:0 0 4px;color:var(--latte);">
+                {{ getRatingStars(biz.rating) }}
+                <span style="color:var(--slate);font-size:0.82rem;">({{ biz.review_count }})</span>
+                @if (biz.price) { <span style="margin-left:6px;">{{ biz.price }}</span> }
+              </p>
+              <p style="margin:0 0 4px;font-size:0.8rem;color:var(--slate);">{{ getCategoryLabels(biz) }}</p>
+              <p style="margin:0 0 8px;font-size:0.85rem;">{{ biz.location.display_address.join(', ') }}</p>
+              @if (biz.distance != null) {
+                <p style="margin:0 0 12px;font-size:0.8rem;color:var(--slate);">📍 {{ getDistanceKm(biz.distance) }}</p>
+              }
+              @if (isLoggedIn) {
+                <a class="btn btn-sm btn-primary" routerLink="/search">Log a visit →</a>
+              } @else {
+                <a class="btn btn-sm btn-outline" routerLink="/register">Sign up to log →</a>
+              }
+            </div>
+          </div>
         }
-      </button>
+      </div>
+    }
 
-    </form>
+    <!-- ── Tabs ─────────────────────────────────────────────────── -->
+    <div class="tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'public'"
+        (click)="setTab('public')"
+      >🌍 Community Reviews</button>
 
-    <p class="auth-footer">
-      Don't have an account?
-      <a routerLink="/register">Sign up free</a>
-    </p>
+      @if (isLoggedIn) {
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'mine'"
+          (click)="setTab('mine')"
+        >📋 My Reviews</button>
+      }
+    </div>
+
+    <!-- Public tab filters -->
+    @if (activeTab === 'public') {
+      <div class="filters-bar">
+        <div class="filters-row">
+          <div class="filter-group">
+            <label>Rating</label>
+            <select class="form-control" [(ngModel)]="filterRating" (change)="applyFilters()">
+              <option value="">All Ratings</option>
+              <option value="5">★★★★★ 5</option>
+              <option value="4">★★★★☆ 4+</option>
+              <option value="3">★★★☆☆ 3+</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Type</label>
+            <select class="form-control" [(ngModel)]="filterType" (change)="applyFilters()">
+              <option value="">All Types</option>
+              @for (t of typeOptions; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-outline" (click)="clearFilters()">Clear</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Loading reviews -->
+    @if (loading && !searched) {
+      <div class="loading-state">
+        <span class="spinner"></span>
+        <span>Loading reviews…</span>
+      </div>
+    }
+
+    <!-- Public reviews -->
+    @if (activeTab === 'public' && !loading) {
+      @if (publicReviews.length === 0) {
+        <p class="empty-msg">No community reviews yet. Be the first!</p>
+      } @else {
+        <div class="reviews-grid">
+          @for (review of publicReviews; track review._id ?? review.id) {
+            <div class="card" style="padding: 20px 22px;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <strong style="color:var(--espresso);">{{ review.cafe_name }}</strong>
+                <span style="color:var(--latte);">{{ getRatingStars(review.rating) }}</span>
+              </div>
+              @if (review.review_text) {
+                <p style="margin:0 0 10px;font-size:0.9rem;color:var(--roast);">{{ review.review_text }}</p>
+              }
+              <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.78rem;color:var(--slate);">
+                @if (review.best_dish)    { <span>🍽 {{ review.best_dish }}</span> }
+                @if (review.date_visited) { <span>📅 {{ review.date_visited }}</span> }
+                @if (review.companions)   { <span>👥 {{ review.companions }}</span> }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- My reviews -->
+    @if (activeTab === 'mine' && !loading) {
+      @if (myReviews.length === 0) {
+        <p class="empty-msg">No reviews yet. <a routerLink="/search">Find a cafe →</a></p>
+      } @else {
+        <div class="reviews-grid">
+          @for (review of myReviews; track review._id ?? review.id) {
+            <div class="card" style="padding: 20px 22px;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <strong style="color:var(--espresso);">{{ review.cafe_name }}</strong>
+                <span style="color:var(--latte);">{{ getRatingStars(review.rating) }}</span>
+              </div>
+              <span style="font-size:0.75rem;color:var(--slate);margin-bottom:8px;display:block;">
+                {{ review.is_visited ? '✅ Visited' : '🔖 Wishlist' }}
+              </span>
+              @if (review.review_text) {
+                <p style="margin:0 0 10px;font-size:0.9rem;color:var(--roast);">{{ review.review_text }}</p>
+              }
+              <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.78rem;color:var(--slate);">
+                @if (review.best_dish)    { <span>🍽 {{ review.best_dish }}</span> }
+                @if (review.date_visited) { <span>📅 {{ review.date_visited }}</span> }
+                @if (review.companions)   { <span>👥 {{ review.companions }}</span> }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- ── Guest CTA ──────────────────────────────────────────── -->
+    @if (!isLoggedIn) {
+      <div class="guest-cta">
+        <div class="guest-cta-inner card">
+          <span class="guest-icon">☕</span>
+          <h3>Start your coffee journal</h3>
+          <p>Log visits, rate cafes, earn badges — all for free.</p>
+          <div class="guest-buttons">
+            <a class="btn btn-primary" routerLink="/register">Sign up free</a>
+            <a class="btn btn-outline" routerLink="/login">Log in</a>
+          </div>
+        </div>
+      </div>
+    }
 
   </div>
 </div>

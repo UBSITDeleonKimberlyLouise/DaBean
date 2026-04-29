@@ -5,12 +5,17 @@
 // Assignment: Cafe Tracker Application
 // ============================================
 
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { CafeService } from '../../services/cafe.service';
+import { CafeService, YelpBusiness, YelpSearchOptions, YelpSortBy } from '../../services/cafe.service';
 
 @Component({
   selector:    'app-dashboard',
+  standalone:  true,
+  imports:     [CommonModule, FormsModule, RouterLink],
   templateUrl: './dashboard.html',
   styleUrls:   ['./dashboard.css']
 })
@@ -19,28 +24,33 @@ export class Dashboard {
   private cafeService = inject(CafeService);
   private authService = inject(AuthService);
 
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  isLoggedIn = false;
+
+  // ── Reviews (logged-in features) ──────────────────────────────────────────
   publicReviews: any[] = [];
   myReviews:     any[] = [];
-  loading        = true;
-  error          = '';
-
-  isLoggedIn     = false;
   activeTab      = 'public';         // 'public' | 'mine'
-
   filterRating   = '';
   filterType     = '';
-
-  email = '';
-  password = '';
-  
-  onSubmit(): void {
-    console.log('Dashboard form submit');
-  }
 
   readonly typeOptions = [
     'Coffee & Tea', 'Brunch', 'Breakfast & Brunch',
     'Cafes', 'Bakeries', 'Desserts', 'Italian', 'Asian Fusion'
   ];
+
+  // ── Guest search (available to everyone) ─────────────────────────────────
+  searchTerm:     string = '';
+  searchLocation: string = '';
+  sortBy: YelpSortBy     = 'best_match';
+  openNow:        boolean = false;
+
+  businesses:  YelpBusiness[] = [];
+  searched     = false;
+
+  // ── Shared state ──────────────────────────────────────────────────────────
+  loading = false;
+  error   = '';
 
   constructor() {
     this.authService.currentUser$.subscribe(user => {
@@ -49,7 +59,60 @@ export class Dashboard {
     this.loadPublicReviews();
   }
 
-  // ── Data Loaders ─────────────────────────────────────────────────────────
+  // ── Guest: Cafe search (no login required) ────────────────────────────────
+
+  searchCafes(): void {
+    if (!this.searchTerm && !this.searchLocation) {
+      this.error = 'Please enter a cafe name or location.';
+      return;
+    }
+
+    this.loading  = true;
+    this.error    = '';
+    this.searched = true;
+    this.businesses = [];
+
+    const options: YelpSearchOptions = {
+      term:     this.searchTerm     || 'cafe',
+      sort_by:  this.sortBy,
+      open_now: this.openNow || undefined
+    };
+
+    const coordMatch = this.searchLocation.match(/^(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/);
+    if (coordMatch) {
+      options.latitude  = parseFloat(coordMatch[1]);
+      options.longitude = parseFloat(coordMatch[2]);
+    } else {
+      options.location = this.searchLocation || 'Manila';
+    }
+
+    this.cafeService.searchCafes(options).subscribe({
+      next: (data) => {
+        this.businesses = data.businesses ?? [];
+        this.loading    = false;
+      },
+      error: (err) => {
+        this.error   = err.message;
+        this.loading = false;
+      }
+    });
+  }
+
+  useMyLocation(): void {
+    if (!navigator.geolocation) {
+      this.error = 'Geolocation is not supported by your browser.';
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        this.searchLocation = `${pos.coords.latitude},${pos.coords.longitude}`;
+        this.searchCafes();
+      },
+      () => { this.error = 'Could not get your location. Please enter it manually.'; }
+    );
+  }
+
+  // ── Reviews: Public ───────────────────────────────────────────────────────
 
   loadPublicReviews(): void {
     this.loading = true;
@@ -107,5 +170,25 @@ export class Dashboard {
     this.filterRating = '';
     this.filterType   = '';
     this.loadPublicReviews();
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  getRatingStars(rating: number): string {
+    const full  = Math.floor(rating);
+    const half  = rating % 1 >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+  }
+
+  getDistanceKm(meters?: number): string {
+    if (meters == null) return '';
+    return meters >= 1000
+      ? `${(meters / 1000).toFixed(1)} km`
+      : `${Math.round(meters)} m`;
+  }
+
+  getCategoryLabels(biz: YelpBusiness): string {
+    return biz.categories.slice(0, 3).map(c => c.title).join(' · ');
   }
 }
