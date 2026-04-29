@@ -50,10 +50,10 @@
   text-align: center;
   margin-top: 24px;
   font-size: 0.9rem;
-  color: var(--slate);
+  color: #708090;
 }
 
 .auth-footer a {
-  color: var(--caramel);
+  color: #e2be8e;
   font-weight: 600;
 }

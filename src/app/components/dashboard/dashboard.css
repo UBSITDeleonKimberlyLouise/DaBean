@@ -8,7 +8,7 @@
 
 /* ── Page Header ── */
 .page-header {
-  background: linear-gradient(135deg, #d69b4e, #5a380c);
+  background: linear-gradient(135deg, #ffd59ed2, #5a380c);
   padding: 52px 32px;
   text-align: center;
   position: relative;
@@ -37,17 +37,17 @@
   font-weight: 600;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--latte);
+  color: #683b00;
   margin-bottom: 10px;
 }
 
 .page-header h1 {
-  color: var(--cream);
+  color: #f8e8d4;
   margin-bottom: 12px;
 }
 
 .header-sub {
-  color: rgba(212, 169, 106, 0.8);
+  color: rgba(61, 42, 13, 0.8);
   font-size: 1rem;
 }
 
@@ -76,15 +76,15 @@
   font-family: var(--font-ui);
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--roast);
+  color: #2b1800;
   background: transparent;
   cursor: pointer;
   transition: var(--transition);
 }
 
 .tab-btn.active {
-  background: var(--warm-white);
-  color: var(--espresso);
+  background: #fcf8e6;
+  color: #9b784a;
   font-weight: 700;
   box-shadow: var(--shadow-soft);
 }
@@ -95,7 +95,7 @@
 
 /* ── Filters Bar ── */
 .filters-bar {
-  background: var(--warm-white);
+  background: #ecebe4;
   border: 1px solid rgba(212, 169, 106, 0.2);
   border-radius: var(--radius-lg);
   padding: 20px 24px;
@@ -124,7 +124,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--roast);
+  color: #57270c;
 }
 
 .filter-actions {
@@ -141,7 +141,7 @@
   align-items: center;
   gap: 16px;
   padding: 60px 0;
-  color: var(--latte);
+  color: #bea38c;
   font-style: italic;
 }
 
