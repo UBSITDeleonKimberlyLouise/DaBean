@@ -5,12 +5,18 @@
   justify-content: center;
   padding: 40px 20px;
   background: linear-gradient(160deg, var(--milk-foam) 0%, var(--cream) 100%);
+
+  position: relative;
+  z-index: 1;
 }
 
 .auth-card {
   width: 100%;
   max-width: 460px;
   padding: 44px 40px 36px;
+
+  position: relative;
+  z-index: 10;
 }
 
 .auth-header {
@@ -52,4 +58,25 @@
 .auth-footer a {
   color: var(--caramel);
   font-weight: 600;
+}
+
+/* ================================
+   FIX: CLICKABILITY ISSUE
+   ================================ */
+
+.auth-card form {
+  position: relative;
+  z-index: 20;
+}
+
+.auth-card button,
+.auth-card a,
+.auth-card input {
+  position: relative;
+  z-index: 30;
+  pointer-events: auto;
+}
+
+.auth-page * {
+  pointer-events: auto;
 }

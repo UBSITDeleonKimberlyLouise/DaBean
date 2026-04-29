@@ -8,7 +8,7 @@
 
 /* ── Page Header ── */
 .page-header {
-  background: linear-gradient(135deg, var(--espresso), var(--roast));
+  background: linear-gradient(135deg, #d69b4e, #5a380c);
   padding: 52px 32px;
   text-align: center;
   position: relative;

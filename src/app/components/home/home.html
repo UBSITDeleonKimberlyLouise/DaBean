@@ -1,6 +1,5 @@
 <main class="home-page">
 
-  <!-- Hero -->
   <section class="hero">
     <div class="hero-grain"></div>
 
@@ -55,10 +54,10 @@
     </div>
   </section>
 
-  <!-- Features -->
   <section class="features">
     <div class="features-inner">
       <p class="section-eyebrow">What you can do</p>
+
       <h2 class="section-title">
         Everything you need<br>for your coffee journey
       </h2>
@@ -68,7 +67,7 @@
         @for (f of features; track f.title; let i = $index) {
           <div
             class="feature-card card fade-in-up"
-            style="animation-delay: {{ i * 0.1 }}s"
+            [style.animation-delay]="(i * 0.1) + 's'"
           >
             <span class="feature-icon">{{ f.icon }}</span>
             <h3>{{ f.title }}</h3>
@@ -80,17 +79,25 @@
     </div>
   </section>
 
-  <!-- CTA Banner -->
   @if (!isLoggedIn) {
     <section class="cta-banner">
       <div class="cta-inner">
+
         <h2>Ready to start brewing your log?</h2>
         <p>Join the community and never forget a great cup again.</p>
 
         <div class="cta-buttons">
-          <a routerLink="/register" class="btn btn-accent">Create Free Account</a>
-          <a routerLink="/login" class="btn btn-secondary">I Have an Account</a>
+
+          <a routerLink="/register" class="btn btn-accent cta-btn">
+            Create Free Account
+          </a>
+
+          <a routerLink="/login" class="btn btn-secondary cta-btn">
+            I Have an Account
+          </a>
+
         </div>
+
       </div>
     </section>
   }
