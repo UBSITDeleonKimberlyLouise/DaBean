@@ -50,10 +50,10 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 const reviewSchema = new mongoose.Schema({
-  user_id:      { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  username:     { type: String, required: true },
+  user_id:      { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  username:     { type: String, default: 'guest' },
   cafe_name:    { type: String, required: true, trim: true },
-  yelp_id:      { type: String, required: true },
+  yelp_id:      { type: String, default: '' },
   address:      { type: String, default: '' },
   category:     { type: String, default: '' },
   image_url:    { type: String, default: '' },
@@ -124,7 +124,7 @@ router.post('/auth/login', async (req, res) => {
 
 router.get('/reviews/public', async (req, res) => {
   const { rating, type } = req.query;
-  const query = { is_public: true, is_visited: true };
+  const query = { is_public: true };
 
   if (rating) query.rating = Number(rating);
   if (type)   query.category = { $regex: type, $options: 'i' };

@@ -83,7 +83,10 @@ export class Dashboard {
       options.latitude  = parseFloat(coordMatch[1]);
       options.longitude = parseFloat(coordMatch[2]);
     } else {
-      options.location = this.searchLocation || 'Manila';
+      if (!options.latitude) {
+        options.latitude  = 16.4023;
+        options.longitude = 120.5960;
+      }
     }
 
     this.cafeService.searchCafes(options).subscribe({
