@@ -156,17 +156,26 @@ router.get('/reviews/:id', verifyToken, async (req, res) => {
   }
 });
 
-router.post('/reviews', verifyToken, async (req, res) => {
-  const { cafe_name, yelp_id, rating, review_text, date_visited, companions, best_dish, is_visited, is_public, category, address, image_url } = req.body;
-  if (!cafe_name || !yelp_id || !rating) return res.status(400).json({ message: 'cafe_name, yelp_id, and rating are required.' });
+router.post('/reviews', async (req, res) => {
+  const { cafe_name, rating, review_text, date_visited, companions, best_dish, is_public } = req.body;
+  if (!cafe_name || !rating) return res.status(400).json({ message: 'cafe_name and rating are required.' });
 
   try {
     const review = await Review.create({
-      user_id: req.user.id, username: req.user.username, cafe_name, yelp_id, rating,
-      review_text: review_text || '', date_visited: date_visited || '', companions: companions || '',
-      best_dish: best_dish || '', is_visited: is_visited !== undefined ? is_visited : true,
-      is_public: is_public !== undefined ? is_public : true, category: category || '',
-      address: address || '', image_url: image_url || ''
+      user_id:      new mongoose.Types.ObjectId(),
+      username:     'guest',
+      cafe_name,
+      yelp_id:      '',
+      rating,
+      review_text:  review_text  || '',
+      date_visited: date_visited || '',
+      companions:   companions   || '',
+      best_dish:    best_dish    || '',
+      is_visited:   true,
+      is_public:    is_public !== undefined ? is_public : true,
+      category:     '',
+      address:      '',
+      image_url:    ''
     });
     res.status(201).json({ review });
   } catch (err) {

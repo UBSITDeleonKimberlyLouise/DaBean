@@ -12,7 +12,6 @@ import { Register } from './components/register/register';
 import { Dashboard } from './components/dashboard/dashboard';
 import { Search } from './components/search/search';
 import { Profile } from './components/profile/profile';
-import { AuthGuard } from './auth.guard';
 
 
 export const routes: Routes = [
@@ -21,10 +20,6 @@ export const routes: Routes = [
   { path: 'login',     component: Login,     title: 'Log In — Bean There'   },
   { path: 'register',  component: Register,  title: 'Sign Up — Bean There'  },
   { path: 'dashboard', component: Dashboard, title: 'Discover — Bean There' },
-
-  // ── Protected routes (requires login) ────────────────────────────────────
-  { path: 'search',  component: Search,  canActivate: [AuthGuard], title: 'Search — Bean There' },
-  { path: 'profile', component: Profile, canActivate: [AuthGuard], title: 'My Log — Bean There' },
 
   { path: '**', redirectTo: '' }
 ];

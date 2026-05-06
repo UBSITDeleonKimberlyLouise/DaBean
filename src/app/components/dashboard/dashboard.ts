@@ -151,6 +151,54 @@ export class Dashboard {
     });
   }
 
+  // ── Add Log ───────────────────────────────────────────────────────────────
+log = {
+  cafe_name:    '',
+  rating:       5,
+  review_text:  '',
+  best_dish:    '',
+  date_visited: '',
+  companions:   '',
+  is_public:    true
+};
+logLoading = false;
+logError   = '';
+logSuccess = false;
+
+submitLog(): void {
+  if (!this.log.cafe_name) {
+    this.logError = 'Please enter a cafe name.';
+    return;
+  }
+
+  this.logLoading = true;
+  this.logError   = '';
+  this.logSuccess = false;
+
+  this.cafeService.createReview({
+    ...this.log,
+    yelp_id:    '',
+    is_visited: true,
+    category:   '',
+    address:    '',
+    image_url:  ''
+  }).subscribe({
+    next: () => {
+      this.logLoading = false;
+      this.logSuccess = true;
+      this.log = { cafe_name: '', rating: 5, review_text: '', best_dish: '', date_visited: '', companions: '', is_public: true };
+      setTimeout(() => {
+        this.logSuccess = false;
+        this.setTab('public');
+      }, 1500);
+    },
+    error: (err) => {
+      this.logError   = err.message;
+      this.logLoading = false;
+    }
+  });
+}
+
   // ── Tab & Filter ──────────────────────────────────────────────────────────
 
   setTab(tab: string): void {

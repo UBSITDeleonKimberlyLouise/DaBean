@@ -118,25 +118,24 @@ export class CafeService {
       .pipe(catchError(this.handleError));
   }
 
-  createReview(payload: {
-    cafe_name:    string;
-    yelp_id:      string;
-    rating:       number;
-    review_text:  string;
-    date_visited: string;
-    companions:   string;
-    best_dish:    string;
-    is_visited:   boolean;
-    is_public:    boolean;
-    category:     string;
-    address:      string;
-    image_url:    string;
-  }): Observable<any> {
-    const headers = this.authService.getAuthHeaders();
-    return this.http
-      .post(`${this.apiUrl}/reviews`, payload, { headers })
-      .pipe(catchError(this.handleError));
-  }
+ createReview(payload: {
+  cafe_name:    string;
+  yelp_id:      string;
+  rating:       number;
+  review_text:  string;
+  date_visited: string;
+  companions:   string;
+  best_dish:    string;
+  is_visited:   boolean;
+  is_public:    boolean;
+  category:     string;
+  address:      string;
+  image_url:    string;
+}): Observable<any> {
+  return this.http
+    .post(`${this.apiUrl}/reviews`, payload)
+    .pipe(catchError(this.handleError));
+}
 
   updateReview(id: string, payload: Partial<{
     rating:       number;

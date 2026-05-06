@@ -114,6 +114,77 @@
       </div>
     }
 
+        <!-- Add Log tab -->
+@if (activeTab === 'addLog') {
+  <div class="card fade-in-up" style="max-width:720px;margin:0 auto;padding:32px;">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <span style="font-size:2rem;">☕</span>
+      <h2 style="margin:8px 0 4px;">Add a Log</h2>
+      <p style="color:var(--slate);font-size:0.9rem;">Record your cafe visit to the community</p>
+    </div>
+
+    @if (logError) {
+      <div class="alert alert-error">{{ logError }}</div>
+    }
+    @if (logSuccess) {
+      <div class="alert alert-success">Log saved! ☕</div>
+    }
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+      <div class="form-group">
+        <label>Cafe Name</label>
+        <input type="text" class="form-control" placeholder="e.g. Foam Coffee"
+          [(ngModel)]="log.cafe_name" />
+      </div>
+
+      <div class="form-group">
+        <label>Rating</label>
+        <select class="form-control" [(ngModel)]="log.rating">
+          <option [value]="5">★★★★★ 5</option>
+          <option [value]="4">★★★★☆ 4</option>
+          <option [value]="3">★★★☆☆ 3</option>
+          <option [value]="2">★★☆☆☆ 2</option>
+          <option [value]="1">★☆☆☆☆ 1</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Best Dish</label>
+        <input type="text" class="form-control" placeholder="e.g. Berry Matcha"
+          [(ngModel)]="log.best_dish" />
+      </div>
+
+      <div class="form-group">
+        <label>Date Visited</label>
+        <input type="date" class="form-control"
+          [(ngModel)]="log.date_visited" />
+      </div>
+
+      <div class="form-group" style="grid-column:1 / -1;">
+        <label>Who were you with?</label>
+        <input type="text" class="form-control" placeholder="e.g. Solo, Friends, Date"
+          [(ngModel)]="log.companions" />
+      </div>
+
+      <div class="form-group" style="grid-column:1 / -1;">
+        <label>Review</label>
+        <textarea class="form-control" rows="3" placeholder="How was it?"
+          [(ngModel)]="log.review_text"></textarea>
+      </div>
+
+    </div>
+
+    <button class="btn btn-primary w-full" style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;" [disabled]="logLoading" (click)="submitLog()">
+      @if (logLoading) { <span class="spinner"></span> }
+      @if (!logLoading) { <span>Save Log ☕</span> }
+    </button>
+
+  </div>
+}
+
+
     <!-- ── Tabs ─────────────────────────────────────────────────── -->
     <div class="tabs">
       <button
@@ -121,15 +192,11 @@
         [class.active]="activeTab === 'public'"
         (click)="setTab('public')"
       >🌍 Community Reviews</button>
-
-      @if (isLoggedIn) {
-        <button
-          class="tab-btn"
-          [class.active]="activeTab === 'mine'"
-          (click)="setTab('mine')"
-        >📋 My Reviews</button>
-      }
     </div>
+    <div style="margin-top:12px;">
+      <button class="btn btn-primary btn-sm" (click)="setTab('addLog')">+ Add Log</button>
+    </div>
+  <br>
 
     <!-- Public tab filters -->
     @if (activeTab === 'public') {
@@ -221,21 +288,6 @@
           }
         </div>
       }
-    }
-
-    <!-- ── Guest CTA ──────────────────────────────────────────── -->
-    @if (!isLoggedIn) {
-      <div class="guest-cta">
-        <div class="guest-cta-inner card">
-          <span class="guest-icon">☕</span>
-          <h3>Start your coffee journal</h3>
-          <p>Log visits, rate cafes, earn badges — all for free.</p>
-          <div class="guest-buttons">
-            <a class="btn btn-primary" routerLink="/register">Sign up free</a>
-            <a class="btn btn-outline" routerLink="/login">Log in</a>
-          </div>
-        </div>
-      </div>
     }
 
   </div>
