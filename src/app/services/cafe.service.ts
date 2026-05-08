@@ -22,6 +22,7 @@ export type YelpBusiness = {
   distance?:     number;
   categories:    { alias: string; title: string }[];
   hours?:        { is_open_now: boolean }[];
+  coordinates?: { latitude: number; longitude: number };
 };
 
 export type YelpSearchResponse = {
@@ -101,6 +102,10 @@ export class CafeService {
             review_count: 0,
             rating:       0,
             price:        '',
+            coordinates: {      
+              latitude:  el.lat,
+              longitude: el.lon
+            },
             location: {
               address1:        el.tags?.['addr:street'] ?? '',
               city:            el.tags?.['addr:city']   ?? 'Baguio City',

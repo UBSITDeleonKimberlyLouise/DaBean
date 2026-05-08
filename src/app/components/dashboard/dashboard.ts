@@ -1,16 +1,9 @@
-// ============================================
-// Bean There, Done That — Dashboard Component
-// Author: [Student Name]
-// Date: 2025
-// Assignment: Cafe Tracker Application
-// ============================================
-
-import { Component, inject } from '@angular/core';
+import { Component, inject, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
 import { CafeService, YelpBusiness, YelpSearchOptions, YelpSortBy } from '../../services/cafe.service';
+import * as L from 'leaflet';
 
 @Component({
   selector:    'app-dashboard',
@@ -19,18 +12,18 @@ import { CafeService, YelpBusiness, YelpSearchOptions, YelpSortBy } from '../../
   templateUrl: './dashboard.html',
   styleUrls:   ['./dashboard.css']
 })
-export class Dashboard {
+export class Dashboard implements AfterViewInit {
 
   private cafeService = inject(CafeService);
-  private authService = inject(AuthService);
 
-  // ── Auth ──────────────────────────────────────────────────────────────────
-  isLoggedIn = false;
+  // ── Map ───────────────────────────────────────────────────────────────────
+  private map!: L.Map;
+  private markersLayer = L.layerGroup();
 
-  // ── Reviews (logged-in features) ──────────────────────────────────────────
+  // ── Reviews ───────────────────────────────────────────────────────────────
   publicReviews: any[] = [];
   myReviews:     any[] = [];
-  activeTab      = 'public';         // 'public' | 'mine'
+  activeTab      = 'public';
   filterRating   = '';
   filterType     = '';
 
@@ -39,7 +32,7 @@ export class Dashboard {
     'Cafes', 'Bakeries', 'Desserts', 'Italian', 'Asian Fusion'
   ];
 
-  // ── Guest search (available to everyone) ─────────────────────────────────
+  // ── Guest search ──────────────────────────────────────────────────────────
   searchTerm:     string = '';
   searchLocation: string = '';
   sortBy: YelpSortBy     = 'best_match';
@@ -53,13 +46,64 @@ export class Dashboard {
   error   = '';
 
   constructor() {
-    this.authService.currentUser$.subscribe(user => {
-      this.isLoggedIn = !!user;
-    });
     this.loadPublicReviews();
   }
 
-  // ── Guest: Cafe search (no login required) ────────────────────────────────
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+  ngAfterViewInit(): void {
+    this.initMap();
+  }
+
+  // ── Map ───────────────────────────────────────────────────────────────────
+
+  private initMap(): void {
+    this.map = L.map('cafe-map').setView([16.4023, 120.5960], 13);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO'
+  }).addTo(this.map);
+
+    this.markersLayer.addTo(this.map);
+  }
+
+  private updateMapMarkers(): void {
+  this.markersLayer.clearLayers();
+
+  const validBiz = this.businesses.filter(
+    (b): b is YelpBusiness & {
+      coordinates: {
+        latitude: number;
+        longitude: number;
+      };
+    } =>
+      b.coordinates !== undefined &&
+      b.coordinates.latitude !== undefined &&
+      b.coordinates.longitude !== undefined
+  );
+
+  validBiz.forEach(biz => {
+    const { latitude: lat, longitude: lng } = biz.coordinates;
+
+    L.marker([lat, lng])
+      .addTo(this.markersLayer)
+      .bindPopup(`
+        <strong>${biz.name}</strong><br>
+        ${biz.location.display_address.join(', ')}<br>
+        ${this.getRatingStars(biz.rating)} (${biz.review_count})
+        ${biz.price ? ' · ' + biz.price : ''}
+      `);
+  });
+
+  if (validBiz.length > 0) {
+    const bounds = validBiz.map(
+      b => [b.coordinates.latitude, b.coordinates.longitude] as L.LatLngTuple
+    );
+
+    this.map.fitBounds(bounds, { padding: [40, 40] });
+  }
+}
+  // ── Cafe Search ───────────────────────────────────────────────────────────
 
   searchCafes(): void {
     if (!this.searchTerm && !this.searchLocation) {
@@ -67,13 +111,13 @@ export class Dashboard {
       return;
     }
 
-    this.loading  = true;
-    this.error    = '';
-    this.searched = true;
+    this.loading    = true;
+    this.error      = '';
+    this.searched   = true;
     this.businesses = [];
 
     const options: YelpSearchOptions = {
-      term:     this.searchTerm     || 'cafe',
+      term:     this.searchTerm || 'cafe',
       sort_by:  this.sortBy,
       open_now: this.openNow || undefined
     };
@@ -83,16 +127,15 @@ export class Dashboard {
       options.latitude  = parseFloat(coordMatch[1]);
       options.longitude = parseFloat(coordMatch[2]);
     } else {
-      if (!options.latitude) {
-        options.latitude  = 16.4023;
-        options.longitude = 120.5960;
-      }
+      options.latitude  = 16.4023;
+      options.longitude = 120.5960;
     }
 
     this.cafeService.searchCafes(options).subscribe({
       next: (data) => {
         this.businesses = data.businesses ?? [];
         this.loading    = false;
+        this.updateMapMarkers();
       },
       error: (err) => {
         this.error   = err.message;
@@ -109,6 +152,7 @@ export class Dashboard {
     navigator.geolocation.getCurrentPosition(
       pos => {
         this.searchLocation = `${pos.coords.latitude},${pos.coords.longitude}`;
+        this.map.setView([pos.coords.latitude, pos.coords.longitude], 14);
         this.searchCafes();
       },
       () => { this.error = 'Could not get your location. Please enter it manually.'; }
@@ -126,8 +170,9 @@ export class Dashboard {
     if (this.filterType)   { filters.type   =  this.filterType;   }
 
     this.cafeService.getPublicReviews(filters).subscribe({
-      next:  (data) => {
-        this.publicReviews = data.reviews ?? data ?? [];
+      next: (data) => {
+        this.publicReviews = (data as any)?.reviews || (data as any)?.data || data || [];
+console.log("PUBLIC REVIEWS:", this.publicReviews);
         this.loading       = false;
       },
       error: (err) => {
@@ -138,12 +183,11 @@ export class Dashboard {
   }
 
   loadMyReviews(): void {
-    if (!this.isLoggedIn) { return; }
     this.loading = true;
     this.error   = '';
 
     this.cafeService.getMyReviews().subscribe({
-      next:  (data) => {
+      next: (data) => {
         this.myReviews = data.reviews ?? data ?? [];
         this.loading   = false;
       },
@@ -155,52 +199,64 @@ export class Dashboard {
   }
 
   // ── Add Log ───────────────────────────────────────────────────────────────
-log = {
-  cafe_name:    '',
-  rating:       5,
-  review_text:  '',
-  best_dish:    '',
-  date_visited: '',
-  companions:   '',
-  is_public:    true
-};
-logLoading = false;
-logError   = '';
-logSuccess = false;
 
-submitLog(): void {
-  if (!this.log.cafe_name) {
-    this.logError = 'Please enter a cafe name.';
-    return;
-  }
+  log = {
+    cafe_name:    '',
+    rating:       5,
+    review_text:  '',
+    best_dish:    '',
+    date_visited: '',
+    companions:   '',
+    is_public:    true
+  };
+  logLoading = false;
+  logError   = '';
+  logSuccess = false;
 
-  this.logLoading = true;
-  this.logError   = '';
-  this.logSuccess = false;
-
-  this.cafeService.createReview({
-    ...this.log,
-    yelp_id:    '',
-    is_visited: true,
-    category:   '',
-    address:    '',
-    image_url:  ''
-  }).subscribe({
-    next: () => {
-      this.logLoading = false;
-      this.logSuccess = true;
-      this.log = { cafe_name: '', rating: 5, review_text: '', best_dish: '', date_visited: '', companions: '', is_public: true };
-      setTimeout(() => {
-        this.logSuccess = false;
-        this.setTab('public');
-      }, 1500);
-    },
-    error: (err) => {
-      this.logError   = err.message;
-      this.logLoading = false;
+  submitLog(): void {
+    if (!this.log.cafe_name) {
+      this.logError = 'Please enter a cafe name.';
+      return;
     }
-  });
-}
+
+    this.logLoading = true;
+    this.logError   = '';
+    this.logSuccess = false;
+
+    this.cafeService.createReview({
+      ...this.log,
+      yelp_id:    '',
+      is_visited: true,
+      category:   '',
+      address:    '',
+      image_url:  ''
+    }).subscribe({
+      next: () => {
+        this.logLoading = false;
+        this.logSuccess = true;
+        this.loadPublicReviews();
+
+        this.log = {
+          cafe_name: '',
+          rating: 5,
+          review_text: '',
+          best_dish: '',
+          date_visited: '',
+          companions: '',
+          is_public: true
+        };
+
+        setTimeout(() => {
+          this.logSuccess = false;
+          this.setTab('public');
+        }, 1500);
+      },
+      error: (err) => {
+        this.logError   = err.message;
+        this.logLoading = false;
+      }
+    });
+  }
 
   // ── Tab & Filter ──────────────────────────────────────────────────────────
 
@@ -213,9 +269,7 @@ submitLog(): void {
     }
   }
 
-  applyFilters(): void {
-    this.loadPublicReviews();
-  }
+  applyFilters(): void { this.loadPublicReviews(); }
 
   clearFilters(): void {
     this.filterRating = '';
