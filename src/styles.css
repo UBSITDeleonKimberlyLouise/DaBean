@@ -126,3 +126,85 @@ select.form-control { appearance: none; background-image: url("data:image/svg+xm
 
 @media (max-width: 768px) { .btn { padding: 9px 18px; font-size: 0.87rem; } }
 @import "leaflet/dist/leaflet.css";
+
+/* --- Dashboard Layout & Map --- */
+.dashboard-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.map-section {
+  height: 380px;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(212, 169, 106, 0.15);
+  box-shadow: var(--shadow-card);
+}
+
+#cafe-map { height: 100%; width: 100%; z-index: 1; }
+
+.search-overlay {
+  position: absolute; top: 20px; left: 0; right: 0;
+  z-index: 1000; display: flex; justify-content: center;
+}
+
+.search-pill {
+  background: var(--warm-white); padding: 6px 6px 6px 20px;
+  border-radius: 50px; display: flex; align-items: center;
+  box-shadow: var(--shadow-card); width: 90%; max-width: 450px;
+}
+
+.search-pill input {
+  border: none; outline: none; flex: 1; font-family: var(--font-body);
+  color: var(--espresso); font-size: 0.95rem; background: transparent;
+}
+
+/* --- Navigation Tabs --- */
+.feed-tabs {
+  display: flex; justify-content: center; gap: 40px;
+  border-bottom: 1px solid var(--latte); margin-bottom: 40px;
+}
+
+.feed-tabs button {
+  background: none; border: none; padding-bottom: 15px;
+  font-family: var(--font-ui); font-weight: 700; color: var(--latte);
+  text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem;
+  cursor: pointer; position: relative; transition: var(--transition);
+}
+
+.feed-tabs button.active { color: var(--espresso); }
+.feed-tabs button.active::after {
+  content: ''; position: absolute; bottom: -1px; left: 0; width: 100%;
+  height: 3px; background: var(--caramel);
+}
+
+/* --- Journal Card System --- */
+.journal-card {
+  background: var(--warm-white); border-radius: var(--radius-md);
+  margin-bottom: 40px; border: 1px solid rgba(44, 26, 14, 0.05);
+  box-shadow: var(--shadow-soft); overflow: hidden;
+}
+
+.card-header {
+  padding: 30px 30px 20px; display: flex;
+  justify-content: space-between; align-items: flex-start;
+  border-bottom: 1px solid rgba(212, 169, 106, 0.1);
+}
+
+.cafe-title { font-family: var(--font-display); font-size: 1.8rem; color: var(--espresso); }
+.card-body { padding: 20px 30px 30px; }
+.review-quote { font-style: italic; font-size: 1.15rem; line-height: 1.8; color: var(--roast); }
+
+/* Separator & Footer */
+.card-footer {
+  background: var(--milk-foam); padding: 20px 30px;
+  border-top: 1px dashed var(--latte);
+}
+
+.rec-label {
+  display: block; font-family: var(--font-ui); font-size: 0.65rem;
+  text-transform: uppercase; color: var(--caramel); 
+  font-weight: 800; letter-spacing: 1.2px; margin-bottom: 4px;
+}

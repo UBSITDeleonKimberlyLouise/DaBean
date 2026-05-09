@@ -176,7 +176,7 @@ export class ReviewForm {
         this.loading = false;
         setTimeout(() => this.onSaved.emit(), 1200);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = err.message;
         this.loading = false;
       }
