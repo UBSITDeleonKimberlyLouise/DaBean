@@ -29,23 +29,23 @@ export class Home {
   readonly features = [
     {
       icon:  '🔍',
-      title: 'Search & Discover',
-      desc:  'Find cafes and restaurants near you using real Yelp data — names, photos, and categories all in one place.'
+      title: 'Discover Cafes',
+      desc:  'Instantly search for coffee spots near you using live data. No account needed—just browse and find your next caffeine fix.'
     },
     {
-      icon:  '⭐',
-      title: 'Rate Your Experience',
-      desc:  'Log your visit with a 1–5 star rating, who you went with, the best dish you tried, and personal notes.'
+      icon:  '✍️',
+      title: 'Anonymous Reviews',
+      desc:  'Share your experience without the hassle of signing up. Drop a rating, mention the best dish, and help others find the best brews.'
     },
     {
-      icon:  '📋',
-      title: 'Visited & Wishlist',
-      desc:  'Keep two separate lists — places you\'ve already been, and places you\'re dreaming of going next.'
+      icon:  '🌍',
+      title: 'Community Feed',
+      desc:  'See what the community is saying in real-time. An open board of cafe visits from fellow coffee lovers everywhere.'
     },
     {
-      icon:  '🏆',
-      title: 'Earn Badges',
-      desc:  'Get rewarded for your logging habits. Visit 5 cafes in one city and earn the "Local Expert" badge!'
+      icon:  '📍',
+      title: 'Leaflet Mapping',
+      desc:  'Pinpoint exact locations with our interactive map. Whether you are in Baguio or Manila, find exactly where the beans are.'
     }
   ];
 

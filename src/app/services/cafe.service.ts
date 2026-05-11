@@ -42,9 +42,9 @@ export class CafeService {
     return this.http.post(`${this.apiUrl}/yelp/search`, options);
   }
 
-  getPublicReviews(filters: any = {}): Observable<any> {
-    return this.http.get(`${this.apiUrl}/reviews`, { params: filters });
-  }
+getPublicReviews(filters: any = {}): Observable<any> {
+  return this.http.get(`${this.apiUrl}/reviews/public`, { params: filters });
+}
 
   createReview(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/reviews`, data);

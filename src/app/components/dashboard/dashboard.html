@@ -1,6 +1,5 @@
 <div class="dashboard-page">
 
-  <!-- ── Page Header ─────────────────────────────────────────── -->
   <div class="page-header">
     <div class="page-header-inner">
       <p class="section-eyebrow">Bean There, Done That</p>
@@ -11,103 +10,73 @@
 
   <div class="dashboard-inner">
 
-    <!-- ── Cafe Search ──────────────────────────────────────────── -->
-    <div class="filters-bar">
-      <div class="filters-row">
-        <div class="filter-group">
-          <label>Cafe / Keyword</label>
-          <input type="text" class="form-control"
-            placeholder="espresso, matcha, brunch…"
-            [(ngModel)]="searchTerm"
-            (keyup.enter)="searchCafes()" />
-        </div>
-        <div class="filter-group">
-          <label>Location</label>
-          <input type="text" class="form-control"
-            placeholder="City or address…"
-            [(ngModel)]="searchLocation"
-            (keyup.enter)="searchCafes()" />
-        </div>
-        <div class="filter-group">
-          <label>Sort By</label>
-          <select class="form-control" [(ngModel)]="sortBy">
-            <option value="best_match">Best Match</option>
-            <option value="rating">Top Rated</option>
-            <option value="review_count">Most Reviewed</option>
-            <option value="distance">Nearest</option>
-          </select>
-        </div>
-        <div class="filter-actions">
-          <button class="btn btn-primary" (click)="searchCafes()" [disabled]="loading">Search</button>
-          <button class="btn btn-outline" (click)="useMyLocation()" title="Use my location">🧭</button>
+    <div [hidden]="activeTab === 'addLog'">
+      <div class="filters-bar">
+        <div class="filters-row">
+          <div class="filter-group">
+            <label>Cafe / Keyword</label>
+            <input type="text" class="form-control" placeholder="espresso, matcha, brunch…" [(ngModel)]="searchTerm" (keyup.enter)="searchCafes()" />
+          </div>
+          <div class="filter-group">
+            <label>Location</label>
+            <input type="text" class="form-control" placeholder="City or address…" [(ngModel)]="searchLocation" (keyup.enter)="searchCafes()" />
+          </div>
+          <div class="filter-group">
+            <label>Sort By</label>
+            <select class="form-control" [(ngModel)]="sortBy">
+              <option value="best_match">Best Match</option>
+              <option value="rating">Top Rated</option>
+              <option value="review_count">Most Reviewed</option>
+              <option value="distance">Nearest</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary" (click)="searchCafes()">Search</button>
+            <button class="btn btn-outline" (click)="useMyLocation()">🧭</button>
+          </div>
         </div>
       </div>
+
+      <div id="cafe-map" style="height: 400px; width: 100%; border-radius: 12px; margin-bottom: 32px; z-index: 1;"></div>
     </div>
 
-    @if (error) {
-      <div class="alert alert-error">{{ error }}</div>
-    }
-
-    <!-- ── Leaflet Map ───────────────────────────────────────────── -->
-    <div id="cafe-map" style="height: 400px; width: 100%; border-radius: var(--radius-lg); margin-bottom: 32px;"></div>
-
-    <!-- Search results -->
-    @if (loading && searched) {
-      <div class="loading-state">
-        <span class="spinner"></span>
-        <span>Finding cafes…</span>
-      </div>
-    }
-
-    @if (searched && !loading && businesses.length === 0 && !error) {
-      <p class="empty-msg">No cafes found. Try a different location or keyword.</p>
-    }
-
-    @if (businesses.length > 0) {
+    @if (searched && !loading && businesses.length > 0 && activeTab !== 'addLog') {
       <div class="reviews-grid" style="margin-bottom: 48px;">
         @for (biz of businesses; track biz.id) {
           <div class="card">
             @if (biz.image_url) {
-              <img
-                style="width:100%;height:160px;object-fit:cover;border-radius:var(--radius-lg) var(--radius-lg) 0 0;"
-                [src]="biz.image_url" [alt]="biz.name" loading="lazy" />
+              <img style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;" [src]="biz.image_url" [alt]="biz.name" />
             }
-            <div style="padding: 16px 18px 18px;">
-              <h3 style="margin:0 0 4px;">
-                <span style="color:var(--espresso);">{{ biz.name }}</span>
-              </h3>
-              <p style="margin:0 0 4px;color:var(--latte);">
-                {{ getRatingStars(biz.rating) }}
-                <span style="color:var(--slate);font-size:0.82rem;">({{ biz.review_count }})</span>
-                @if (biz.price) { <span style="margin-left:6px;">{{ biz.price }}</span> }
-              </p>
-              <p style="margin:0 0 4px;font-size:0.8rem;color:var(--slate);">{{ getCategoryLabels(biz) }}</p>
-              <p style="margin:0 0 8px;font-size:0.85rem;">{{ biz.location.display_address.join(', ') }}</p>
-              @if (biz.distance != null) {
-                <p style="margin:0 0 12px;font-size:0.8rem;color:var(--slate);">📍 {{ getDistanceKm(biz.distance) }}</p>
-              }
+            <div style="padding: 16px;">
+              <h3 style="margin:0;">{{ biz.name }}</h3>
+              <p>{{ getRatingStars(biz.rating) }} ({{ biz.review_count }})</p>
+              <p style="font-size:0.85rem;">{{ biz.location.display_address.join(', ') }}</p>
             </div>
           </div>
         }
       </div>
     }
 
-    <!-- ── Add Log ───────────────────────────────────────────────── -->
+    <div class="tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'public'" (click)="setTab('public')">🌍 Community Reviews</button>
+      <button class="tab-btn" [class.active]="activeTab === 'addLog'" (click)="setTab('addLog')">✍️ Add a Log</button>
+    </div>
+
     @if (activeTab === 'addLog') {
-      <div class="card fade-in-up" style="max-width:720px;margin:0 auto;padding:32px;">
+      <div class="card fade-in-up" style="max-width:720px;margin:24px auto;padding:32px;">
         <div style="text-align:center;margin-bottom:24px;">
           <span style="font-size:2rem;">☕</span>
           <h2 style="margin:8px 0 4px;">Add a Log</h2>
-          <p style="color:var(--slate);font-size:0.9rem;">Record your cafe visit to the community</p>
+          <p style="color:gray;font-size:0.9rem;">Record your cafe visit to the community</p>
         </div>
 
-        @if (logError)   { <div class="alert alert-error">{{ logError }}</div> }
+        @if (logError) { <div class="alert alert-error">{{ logError }}</div> }
         @if (logSuccess) { <div class="alert alert-success">Log saved! ☕</div> }
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
           <div class="form-group">
             <label>Cafe Name</label>
-            <input type="text" class="form-control" placeholder="e.g. Foam Coffee" [(ngModel)]="log.cafe_name" />
+            <input type="text" class="form-control" [(ngModel)]="log.cafe_name" />
           </div>
           <div class="form-group">
             <label>Rating</label>
@@ -121,7 +90,7 @@
           </div>
           <div class="form-group">
             <label>Best Dish</label>
-            <input type="text" class="form-control" placeholder="e.g. Berry Matcha" [(ngModel)]="log.best_dish" />
+            <input type="text" class="form-control" [(ngModel)]="log.best_dish" />
           </div>
           <div class="form-group">
             <label>Date Visited</label>
@@ -129,123 +98,42 @@
           </div>
           <div class="form-group" style="grid-column:1 / -1;">
             <label>Who were you with?</label>
-            <input type="text" class="form-control" placeholder="e.g. Solo, Friends, Date" [(ngModel)]="log.companions" />
+            <input type="text" class="form-control" [(ngModel)]="log.companions" />
           </div>
           <div class="form-group" style="grid-column:1 / -1;">
             <label>Review</label>
-            <textarea class="form-control" rows="3" placeholder="How was it?" [(ngModel)]="log.review_text"></textarea>
+            <textarea class="form-control" rows="3" [(ngModel)]="log.review_text"></textarea>
           </div>
         </div>
 
-        <button class="btn btn-primary w-full"
-          style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;"
-          [disabled]="logLoading" (click)="submitLog()">
+        <button class="btn btn-primary w-full" style="margin-top:16px;" [disabled]="logLoading" (click)="submitLog()">
           @if (logLoading) { <span class="spinner"></span> }
           @if (!logLoading) { <span>Save Log ☕</span> }
         </button>
       </div>
     }
 
-    <!-- ── Tabs ──────────────────────────────────────────────────── -->
-    <div class="tabs">
-      <button class="tab-btn" [class.active]="activeTab === 'public'" (click)="setTab('public')">
-        🌍 Community Reviews
-      </button>
-    </div>
-    <div style="margin-top:12px;">
-      <button class="btn btn-primary btn-sm" (click)="setTab('addLog')">+ Add Log</button>
-    </div>
-    <br>
-
-    <!-- Public tab filters -->
     @if (activeTab === 'public') {
-      <div class="filters-bar">
-        <div class="filters-row">
-          <div class="filter-group">
-            <label>Rating</label>
-            <select class="form-control" [(ngModel)]="filterRating" (change)="applyFilters()">
-              <option value="">All Ratings</option>
-              <option value="5">★★★★★ 5</option>
-              <option value="4">★★★★☆ 4+</option>
-              <option value="3">★★★☆☆ 3+</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label>Type</label>
-            <select class="form-control" [(ngModel)]="filterType" (change)="applyFilters()">
-              <option value="">All Types</option>
-              @for (t of typeOptions; track t) {
-                <option [value]="t">{{ t }}</option>
-              }
-            </select>
-          </div>
-          <div class="filter-actions">
-            <button class="btn btn-outline" (click)="clearFilters()">Clear</button>
-          </div>
-        </div>
-      </div>
-    }
-
-    
-
-<!-- EMPTY STATE -->
-@if (!loading && activeTab === 'public' && publicReviews.length === 0) {
-  <p class="empty-msg">No community reviews yet. Be the first!</p>
-}
-
-<!-- REVIEWS LIST -->
-@if (!loading && activeTab === 'public') {
-  <div class="reviews-grid">
-
-    @for (review of publicReviews; track $index) {
-      <div class="card" style="padding: 20px;">
+      <div class="reviews-grid" style="margin-top:24px;">
+        @if (loading) { <div class="loading-state">Loading...</div> }
         
-        <div style="display:flex;justify-content:space-between;">
-          <strong>{{ review.cafe_name }}</strong>
-          <span>{{ getRatingStars(review.rating) }}</span>
-        </div>
-
-        @if (review.review_text) {
-          <p>{{ review.review_text }}</p>
+        @for (review of publicReviews; track $index) {
+          <div class="card" style="padding: 22px;">
+            <div style="display:flex;justify-content:space-between;">
+              <strong>{{ review.cafe_name }}</strong>
+              <span>{{ getRatingStars(review.rating) }}</span>
+            </div>
+            <p style="margin:12px 0;">{{ review.review_text }}</p>
+            <div style="font-size:0.8rem;color:gray;">
+              @if (review.best_dish) { <span>🍽️ {{ review.best_dish }}</span> }
+              @if (review.date_visited) { <span> 📅 {{ review.date_visited }}</span> }
+              <span> 👥 Guest</span>
+            </div>
+          </div>
+        } @empty {
+          <p class="empty-msg">No community reviews yet.</p>
         }
-
-        <div style="font-size:0.8rem;color:gray;">
-          @if (review.best_dish) { <span>🍽 {{ review.best_dish }}</span> }
-          @if (review.date_visited) { <span>📅 {{ review.date_visited }}</span> }
-          @if (review.companions) { <span>👥 {{ review.companions }}</span> }
-        </div>
-
       </div>
     }
-
-  </div>
-}
-
-    <!-- Community reviews -->
-    @if (activeTab === 'public' && !loading) {
-      @if (publicReviews.length === 0) {
-        <p class="empty-msg">No community reviews yet. Be the first!</p>
-      } @else {
-        <div class="reviews-grid">
-          @for (review of publicReviews; track $index) {
-            <div class="card" style="padding: 20px 22px;">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-                <strong style="color:var(--espresso);">{{ review.cafe_name }}</strong>
-                <span style="color:var(--latte);">{{ getRatingStars(review.rating) }}</span>
-              </div>
-              @if (review.review_text) {
-                <p style="margin:0 0 10px;font-size:0.9rem;color:var(--roast);">{{ review.review_text }}</p>
-              }
-              <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.78rem;color:var(--slate);">
-                @if (review.best_dish)    { <span>🍽 {{ review.best_dish }}</span> }
-                @if (review.date_visited) { <span>📅 {{ review.date_visited }}</span> }
-                @if (review.companions)   { <span>👥 {{ review.companions }}</span> }
-              </div>
-            </div>
-          }
-        </div>
-      }
-    }
-
   </div>
 </div>

@@ -1,3 +1,4 @@
+@import "leaflet/dist/leaflet.css";
 :root {
   --espresso:     #2C1A0E;
   --roast:        #4A2C17;
@@ -125,7 +126,6 @@ select.form-control { appearance: none; background-image: url("data:image/svg+xm
 .fade-in    { animation: fadeIn 0.3s ease both; }
 
 @media (max-width: 768px) { .btn { padding: 9px 18px; font-size: 0.87rem; } }
-@import "leaflet/dist/leaflet.css";
 
 /* --- Dashboard Layout & Map --- */
 .dashboard-wrapper {
