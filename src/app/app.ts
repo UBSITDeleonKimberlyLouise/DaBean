@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router'; // <--- 1. Must import this for <router-outlet>
+import { RouterOutlet } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
 
 
 @Component({
   selector: 'app-root',
-  standalone: true, // This confirms you are using the new Standalone style
+  standalone: true,
   imports: [CommonModule, RouterOutlet, Navbar],
   templateUrl: './app.html',
   styleUrl: './app.css'

@@ -2,7 +2,6 @@
   min-height: calc(100vh - 68px - 140px);
 }
 
-/* ── Footer ── */
 .site-footer {
   background: var(--espresso);
   background-color: rgb(107, 54, 29);

@@ -5,17 +5,15 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// 1. MongoDB Connection
-// Make sure your .env file has MONGODB_URI=your_connection_string
+// 1. Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connected to MongoDB Atlas'))
     .catch(err => console.error('Could not connect to MongoDB:', err));
 
-// 2. Review Schema & Model
+// 2. Define the Schema and Model directly here
 const reviewSchema = new mongoose.Schema({
     cafe_name: { type: String, required: true },
     rating: { type: Number, required: true },
@@ -29,26 +27,7 @@ const reviewSchema = new mongoose.Schema({
 
 const Review = mongoose.model('Review', reviewSchema);
 
-// 3. API Routes
-
-/**
- * GET /reviews/public
- * Fetches all reviews intended for the community feed
- */
-app.get('/reviews/public', async (req, res) => {
-    try {
-        const reviews = await Review.find({ is_public: true })
-            .sort({ created_at: -1 }); // Newest first
-        res.status(200).json(reviews);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch reviews' });
-    }
-});
-
-/**
- * POST /reviews
- * Saves a new guest log to the database
- */
+// 3. Define the Routes directly here
 app.post('/reviews', async (req, res) => {
     try {
         const newReview = new Review(req.body);
@@ -65,8 +44,9 @@ app.post('/reviews', async (req, res) => {
  */
 app.delete('/reviews/:id', async (req, res) => {
     try {
-        await Review.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: 'Review deleted' });
+        // This finds all reviews where is_public is true
+        const reviews = await Review.find({ is_public: true });
+        res.json(reviews);
     } catch (err) {
         res.status(500).json({ error: 'Delete failed' });
     }
@@ -81,8 +61,8 @@ app.get('/api/osm-proxy', async (req, res) => {
   res.json(data);
 });
 
-// 4. Server Initialization
-const PORT = process.env.PORT || 3000;
+// 4. Start the server
+const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

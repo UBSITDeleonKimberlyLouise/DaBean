@@ -1,10 +1,3 @@
-// ============================================
-// Bean There, Done That — Home Component
-// Author: [Student Name]
-// Date: 2026
-// Assignment: Cafe Tracker Application
-// ============================================
-
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,7 +15,6 @@ export class Home {
   private cafeService = inject(CafeService);
   private router = inject(Router);
 
-  // ── Features section data ──────────────────────────────────────
   readonly features = [
     {
       icon:  '🔍',
@@ -46,7 +38,6 @@ export class Home {
     }
   ];
 
-  // ── Search state ───────────────────────────────────────────────
   searchLocation = '';
   searchTerm     = '';
   
@@ -55,36 +46,20 @@ export class Home {
   hasSearched = false;
   errorMsg    = '';
 
-  // ── Pagination logic ───────────────────────────────────────────
   currentPage       = 0;
   readonly pageSize = 10;
   totalResults      = 0;
 
   get totalPages(): number { return Math.ceil(this.totalResults / this.pageSize); }
 
-  // ── Actions ────────────────────────────────────────────────────
-
-  /**
-   * Main search trigger from the home hero
-   */
   onSearch(): void {
     if (!this.searchLocation.trim()) {
       this.errorMsg = 'Please enter a city or address to search.';
       return;
     }
-    
-    // If you want to show results directly on the home page:
     this.fetchCafes();
-    
-    // Alternatively, redirect to dashboard with search params:
-    // this.router.navigate(['/dashboard'], { 
-    //   queryParams: { q: this.searchTerm, loc: this.searchLocation } 
-    // });
   }
 
-  /**
-   * Uses browser geolocation to find the user
-   */
   useMyLocation(): void {
     if (!navigator.geolocation) {
       this.errorMsg = 'Geolocation is not supported by your browser.';
@@ -106,15 +81,10 @@ export class Home {
     );
   }
 
-  /**
-   * Fetches data from OpenStreetMap (Nominatim)
-   */
   private fetchCafes(): void {
     this.isLoading   = true;
     this.errorMsg    = '';
     this.hasSearched = true;
-
-    // Use the free OSM search from your CafeService
     this.cafeService.searchCafes(this.searchTerm || 'cafe', this.searchLocation).subscribe({
       next: (res: any[]) => {
         this.businesses = res.map(item => ({
@@ -133,7 +103,6 @@ export class Home {
     });
   }
 
-  // ── Helper formatters ──────────────────────────────────────────
   getRatingStars(rating: number = 5): string {
     return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   }
