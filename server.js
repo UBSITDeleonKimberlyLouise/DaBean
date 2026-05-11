@@ -5,16 +5,13 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// 1. Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connected to MongoDB Atlas'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-// 2. Define the Schema and Model directly here
 const reviewSchema = new mongoose.Schema({
     cafe_name:    String,
     yelp_id:      String,
@@ -32,7 +29,6 @@ const reviewSchema = new mongoose.Schema({
 
 const Review = mongoose.model('Review', reviewSchema);
 
-// 3. Define the Routes directly here
 app.post('/reviews', async (req, res) => {
     try {
         const newReview = new Review(req.body);
@@ -45,7 +41,6 @@ app.post('/reviews', async (req, res) => {
 
 app.get('/reviews/public', async (req, res) => {
     try {
-        // This finds all reviews where is_public is true
         const reviews = await Review.find({ is_public: true });
         res.json(reviews);
     } catch (err) {
@@ -62,7 +57,6 @@ app.get('/reviews', async (req, res) => {
     }
 });
 
-// 4. Start the server
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

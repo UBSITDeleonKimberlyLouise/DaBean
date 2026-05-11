@@ -127,7 +127,6 @@ select.form-control { appearance: none; background-image: url("data:image/svg+xm
 
 @media (max-width: 768px) { .btn { padding: 9px 18px; font-size: 0.87rem; } }
 
-/* --- Dashboard Layout & Map --- */
 .dashboard-wrapper {
   max-width: 900px;
   margin: 0 auto;
@@ -161,7 +160,6 @@ select.form-control { appearance: none; background-image: url("data:image/svg+xm
   color: var(--espresso); font-size: 0.95rem; background: transparent;
 }
 
-/* --- Navigation Tabs --- */
 .feed-tabs {
   display: flex; justify-content: center; gap: 40px;
   border-bottom: 1px solid var(--latte); margin-bottom: 40px;
@@ -180,7 +178,6 @@ select.form-control { appearance: none; background-image: url("data:image/svg+xm
   height: 3px; background: var(--caramel);
 }
 
-/* --- Journal Card System --- */
 .journal-card {
   background: var(--warm-white); border-radius: var(--radius-md);
   margin-bottom: 40px; border: 1px solid rgba(44, 26, 14, 0.05);
@@ -197,7 +194,6 @@ select.form-control { appearance: none; background-image: url("data:image/svg+xm
 .card-body { padding: 20px 30px 30px; }
 .review-quote { font-style: italic; font-size: 1.15rem; line-height: 1.8; color: var(--roast); }
 
-/* Separator & Footer */
 .card-footer {
   background: var(--milk-foam); padding: 20px 30px;
   border-top: 1px dashed var(--latte);

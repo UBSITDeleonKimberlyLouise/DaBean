@@ -1,15 +1,7 @@
-// ============================================
-// Bean There, Done That — Home Component
-// Author: [Student Name]
-// Date: 2025
-// Assignment: Cafe Tracker Application
-// ============================================
-
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
 import { CafeService, YelpBusiness, YelpSearchOptions, YelpSortBy } from '../../services/cafe.service';
 
 @Component({
@@ -20,9 +12,7 @@ import { CafeService, YelpBusiness, YelpSearchOptions, YelpSortBy } from '../../
   styleUrls:   ['./home.css']
 })
 export class Home {
-
-  private authService = inject(AuthService);
-  private cafeService = inject(CafeService);       // ← added
+  private cafeService = inject(CafeService);
 
   isLoggedIn = false;
 
@@ -49,7 +39,6 @@ export class Home {
     }
   ];
 
-  // ── Search state ───────────────────────────────────────────────
   searchLocation = '';
   searchTerm     = 'cafe';
   sortBy: YelpSortBy = 'best_match';
@@ -68,14 +57,6 @@ export class Home {
   get startIndex(): number { return this.currentPage * this.pageSize + 1; }
   get endIndex():   number { return Math.min((this.currentPage + 1) * this.pageSize, this.totalResults); }
 
-  constructor() {
-    // ── your original code, untouched ──
-    this.authService.currentUser$.subscribe(user => {
-      this.isLoggedIn = !!user;
-    });
-  }
-
-  // ── Search ─────────────────────────────────────────────────────
   onSearch(): void {
     if (!this.searchLocation.trim()) {
       this.errorMsg = 'Please enter a city or address to search.';

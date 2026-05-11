@@ -19,7 +19,9 @@
   right: 5%;
 }
 
-.page-header-inner { position: relative; }
+.page-header-inner {
+  position: relative; 
+}
 
 .section-eyebrow {
   font-family: var(--font-ui);
@@ -31,8 +33,14 @@
   margin-bottom: 10px;
 }
 
-.page-header h1 { color: var(--cream); margin-bottom: 8px; }
-.header-sub     { color: rgba(212, 169, 106, 0.7); }
+.page-header h1 { 
+  color: var(--cream); 
+  margin-bottom: 8px; 
+}
+
+.header-sub { 
+  color: rgba(212, 169, 106, 0.7); 
+}
 
 .search-inner {
   max-width: 1100px;
@@ -58,7 +66,9 @@
   margin-bottom: 0;
 }
 
-.search-btn-wrap { align-self: flex-end; }
+.search-btn-wrap {
+  align-self: flex-end; 
+}
 
 .search-btn {
   padding: 11px 28px;
