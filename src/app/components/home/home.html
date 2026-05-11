@@ -18,11 +18,11 @@
 
       <div class="hero-cta">
 
-        <a routerLink="/dashboard" class="btn btn-primary">
+        <a [routerLink]="['/dashboard']" [queryParams]="{ tab: 'add' }" class="btn btn-primary">
           Start Your Log ☕
         </a>
 
-        <a routerLink="/dashboard" class="btn btn-secondary">
+        <a [routerLink]="['/dashboard']" [queryParams]="{ tab: 'feed' }" class="btn btn-secondary">
           Explore Reviews
         </a>
 

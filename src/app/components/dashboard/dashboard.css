@@ -195,3 +195,9 @@
   .tabs { width: 100%; }
   .tab-btn { flex: 1; text-align: center; }
 }
+
+#map {
+  height: 450px !important;
+  width: 100%;
+  z-index: 1;
+}

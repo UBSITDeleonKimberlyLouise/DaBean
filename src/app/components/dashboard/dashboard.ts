@@ -1,6 +1,7 @@
-import { Component, inject, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { CafeService } from '../../services/cafe.service';
 import * as L from 'leaflet';
 
@@ -11,26 +12,25 @@ import * as L from 'leaflet';
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
-export class Dashboard implements OnInit, AfterViewInit {
+export class Dashboard implements OnInit {
   private cafeService = inject(CafeService);
-
-  // ── Map State ──────────────────────────────────────────
+  private route = inject(ActivatedRoute);
   private map!: L.Map;
-  private markersLayer = L.layerGroup();
 
-  // ── UI State ───────────────────────────────────────────
+  activeTab = 'feed';
   publicReviews: any[] = [];
-  activeTab = 'public';
-  loading = false;
+  loading = true;
+  logLoading = false;
   searched = false;
-  error = '';
+  errorMsg = '';
+  logError = '';
+  logSuccess = false;
 
-  // ── Search State ───────────────────────────────────────
   searchTerm = '';
   searchLocation = 'Baguio City';
+  sortBy = 'best_match';
   businesses: any[] = [];
 
-  // ── Add Log State ──────────────────────────────────────
   log = {
     cafe_name: '',
     rating: 5,
@@ -39,144 +39,125 @@ export class Dashboard implements OnInit, AfterViewInit {
     date_visited: '',
     companions: ''
   };
-  logLoading = false;
-  logSuccess = false;
-  logError = '';
 
   ngOnInit(): void {
-    this.loadPublicReviews();
-  }
-
-  ngAfterViewInit(): void {
-    this.initMap();
-  }
-
-  // ── Leaflet Map Logic ──────────────────────────────────
-  private initMap(): void {
-    if (this.map) return;
-
-    // Default view set to Baguio City
-    this.map = L.map('cafe-map').setView([16.4023, 120.5960], 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(this.map);
-
-    this.markersLayer.addTo(this.map);
-  }
-
-  private updateMapMarkers(): void {
-    this.markersLayer.clearLayers();
-    const coords: L.LatLngTuple[] = [];
-
-    this.businesses.forEach(b => {
-      if (b.lat && b.lon) {
-        const markerCoords: L.LatLngTuple = [b.lat, b.lon];
-        coords.push(markerCoords);
-        
-        L.marker(markerCoords)
-          .addTo(this.markersLayer)
-          .bindPopup(`<strong>${b.name}</strong><br>${b.address}`);
+    this.loadReviews(); // Fetch data first
+    
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.setTab(params['tab']);
       }
     });
+  }
 
-    if (coords.length > 0) {
-      this.map.fitBounds(coords, { padding: [50, 50] });
+  setTab(tab: string): void {
+    this.activeTab = tab;
+    if (tab === 'feed') {
+      // Small delay allows Angular to render the div id="map" 
+      // before Leaflet tries to find it.
+      setTimeout(() => this.initMap(), 250);
     }
   }
 
-  // ── Action Methods ─────────────────────────────────────
-  searchCafes(): void {
-    if (!this.searchTerm.trim()) return;
-    
+  private initMap(): void {
+  const mapContainer = document.getElementById('map');
+  if (!mapContainer) return;
+
+  if (this.map) {
+    this.map.remove();
+  }
+
+  // Initialize
+  this.map = L.map('map').setView([16.4023, 120.5960], 13);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(this.map);
+
+  // Force a resize check after a tiny delay
+  setTimeout(() => {
+    this.map.invalidateSize();
+  }, 300);
+
+  this.addMarkersToMap();
+}
+
+  loadReviews(): void {
     this.loading = true;
-    this.searched = true;
-    this.error = '';
-
-    this.cafeService.searchCafes(this.searchTerm, this.searchLocation).subscribe({
-      next: (results) => {
-        // Map OpenStreetMap data to our local business format
-        this.businesses = results.map(item => ({
-          name: item.display_name.split(',')[0],
-          address: item.display_name,
-          lat: parseFloat(item.lat),
-          lon: parseFloat(item.lon)
-        }));
-
-        this.updateMapMarkers();
+    this.cafeService.getPublicReviews().subscribe({
+      next: (data) => {
+        this.publicReviews = data;
         this.loading = false;
-        
-        if (this.businesses.length === 0) {
-          this.error = 'No cafes found in that area.';
+        // Only initialize map if we are currently looking at the feed
+        if (this.activeTab === 'feed') {
+          setTimeout(() => this.initMap(), 100);
         }
       },
       error: () => {
-        this.error = 'Search failed. Please try again.';
+        this.errorMsg = 'Failed to load community feed.';
         this.loading = false;
       }
     });
   }
 
-  loadPublicReviews(): void {
-    this.cafeService.getPublicReviews().subscribe({
-      next: (data) => {
-        this.publicReviews = Array.isArray(data) ? data : [];
+  searchCafes(): void {
+    this.loading = true;
+    this.searched = true;
+    this.cafeService.searchCafes(this.searchTerm, this.searchLocation).subscribe({
+      next: (data: any[]) => {
+        this.businesses = data;
+        this.loading = false;
       },
       error: () => {
-        console.error('Could not load feed.');
+        this.loading = false;
       }
     });
   }
 
   submitLog(): void {
-    if (!this.log.cafe_name) {
-      this.logError = 'Please enter a cafe name.';
-      return;
-    }
-
     this.logLoading = true;
     this.logError = '';
+    this.logSuccess = false;
 
-    this.cafeService.createReview({ ...this.log, is_public: true }).subscribe({
+    this.cafeService.createReview(this.log).subscribe({
       next: () => {
+        this.log = { 
+          cafe_name: '', rating: 5, review_text: '', 
+          best_dish: '', date_visited: '', companions: '' 
+        };
         this.logLoading = false;
         this.logSuccess = true;
-        this.loadPublicReviews();
         
-        // Reset form and switch back to feed after a short delay
-        setTimeout(() => {
-          this.logSuccess = false;
-          this.setTab('public');
-          this.log = {
-            cafe_name: '',
-            rating: 5,
-            review_text: '',
-            best_dish: '',
-            date_visited: '',
-            companions: ''
-          };
-        }, 1500);
+        // Wait 1.5s to show success message then switch back to feed
+        setTimeout(() => this.setTab('feed'), 1500);
       },
-      error: (err) => {
-        this.logError = 'Failed to save log.';
+      error: () => {
         this.logLoading = false;
+        this.logError = 'Failed to save log.';
       }
     });
   }
 
-  // ── UI Helpers ─────────────────────────────────────────
-  setTab(tab: string): void {
-    this.activeTab = tab;
-    
-    // Crucial: When returning to 'public', refresh the map size
-    if (tab === 'public') {
-      this.loadPublicReviews();
-      setTimeout(() => {
-        if (this.map) {
-          this.map.invalidateSize();
-        }
-      }, 100);
+  useMyLocation(): void {
+    if (navigator.geolocation && this.map) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        this.map.setView([latitude, longitude], 15);
+        L.marker([latitude, longitude]).addTo(this.map).bindPopup('You are here').openPopup();
+      });
     }
+  }
+
+  private addMarkersToMap(): void {
+    if (!this.map) return;
+
+    this.publicReviews.forEach(review => {
+      if (review.lat && review.lng) {
+        L.marker([review.lat, review.lng])
+          .addTo(this.map)
+          .bindPopup(`<b>${review.cafe_name}</b>`);
+      }
+    });
   }
 
   getRatingStars(rating: number): string {
