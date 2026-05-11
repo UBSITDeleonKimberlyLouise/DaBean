@@ -1,98 +1,55 @@
 import { Component, inject } from '@angular/core';
-import { CafeService } from '../../services/cafe.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ReviewForm } from '../review-form/review-form';
-
+import { RouterLink } from '@angular/router';
+import { CafeService } from '../../services/cafe.service';
 
 @Component({
-  selector:    'app-search',
+  selector: 'app-search',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReviewForm],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './search.html',
-  styleUrls:   ['./search.css']
+  styleUrls: ['./search.css']
 })
 export class Search {
-
   private cafeService = inject(CafeService);
 
-  searchTerm      = '';
-  searchLocation  = '';
-  results:  any[] = [];
-  loading         = false;
-  error           = '';
-  searched        = false;
+  searchTerm = '';
+  searchLocation = 'Baguio City';
+  results: any[] = [];
+  isLoading = false;
+  hasSearched = false;
+  errorMsg = '';
 
-  // The cafe picked to be logged
-  selectedCafe:    any    = null;
-  showReviewForm         = false;
-
-  // ── Search ────────────────────────────────────────────────────────────────
-
-  search(): void {
-    if (!this.searchTerm && !this.searchLocation) {
-      this.error = 'Please enter a cafe name or location.';
+  onSearch(): void {
+    if (!this.searchTerm.trim()) {
+      this.errorMsg = 'Please enter a cafe name';
       return;
     }
 
-    this.loading  = true;
-    this.error    = '';
-    this.searched = true;
-    this.results  = [];
-    this.selectedCafe  = null;
-    this.showReviewForm = false;
+    console.log('Attempting search for:', this.searchTerm); // DEBUG
+    this.isLoading = true;
+    this.hasSearched = true;
+    this.errorMsg = '';
 
-    this.cafeService
-      .searchCafes({ term: this.searchTerm, location: this.searchLocation })
-      .subscribe({
-        next: (data) => {
-          this.results = data.businesses ?? data ?? [];
-          this.loading = false;
-        },
-        error: (err) => {
-          this.error   = err.message;
-          this.loading = false;
+    this.cafeService.searchCafes(this.searchTerm, this.searchLocation).subscribe({
+      next: (data) => {
+        console.log('Data received:', data); // DEBUG
+        this.results = data || [];
+        this.isLoading = false;
+        if (this.results.length === 0) {
+          this.errorMsg = 'No spots found. Try a broader search term.';
         }
-      });
+      },
+      error: (err) => {
+        console.error('API Error:', err); // DEBUG
+        this.isLoading = false;
+        this.errorMsg = 'The search service is currently unavailable (CORS or Policy block).';
+      }
+    });
   }
 
-  // ── Select a result to log ────────────────────────────────────────────────
-
-  selectCafe(business: any): void {
-    this.selectedCafe   = business;
-    this.showReviewForm = true;
-
-    // Smooth-scroll to the form
-    setTimeout(() => {
-      const el = document.getElementById('review-form-anchor');
-      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    }, 80);
-  }
-
-  // ── After review saved ────────────────────────────────────────────────────
-
-  onReviewSaved(): void {
-    this.showReviewForm = false;
-    this.selectedCafe   = null;
-    this.results        = [];
-    this.searched       = false;
-    this.searchTerm     = '';
-    this.searchLocation = '';
-  }
-
-  onCancelForm(): void {
-    this.showReviewForm = false;
-    this.selectedCafe   = null;
-  }
-
-  /** Extract primary category label from Yelp categories array */
-  getCategoryLabel(categories: any[]): string {
-    if (!categories || categories.length === 0) { return ''; }
-    return categories.map(c => c.title).join(', ');
-  }
-
-  /** Extract price range or return empty */
-  getPriceLabel(price: string): string {
-    return price ?? '';
+  getRatingStars(rating: number = 5): string {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   }
 }

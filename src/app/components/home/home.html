@@ -18,17 +18,9 @@
 
       <div class="hero-cta">
 
-        @if (!isLoggedIn) {
-          <a routerLink="/register" class="btn btn-primary">
-            Start Your Log ☕
-          </a>
-        }
-
-        @if (isLoggedIn) {
-          <a routerLink="/search" class="btn btn-primary">
-            Search Cafes 🔍
-          </a>
-        }
+        <a routerLink="/dashboard" class="btn btn-primary">
+          Start Your Log ☕
+        </a>
 
         <a routerLink="/dashboard" class="btn btn-secondary">
           Explore Reviews
@@ -79,19 +71,17 @@
     </div>
   </section>
 
-  @if (!isLoggedIn) {
-    <section class="cta-banner">
-      <div class="cta-inner">
+  <section class="cta-banner">
+    <div class="cta-inner">
 
-        <h2>Ready to start brewing your log?</h2>
-        <p>Join the community and never forget a great cup again.</p>
+      <h2>Ready to start brewing your log?</h2>
+      <p>Explore the community and never forget a great cup again.</p>
 
-        <div class="cta-buttons">
-
-        </div>
-
+      <div class="cta-buttons">
+        <a routerLink="/dashboard" class="btn btn-primary">Open Dashboard</a>
       </div>
-    </section>
-  }
+
+    </div>
+  </section>
 
 </main>

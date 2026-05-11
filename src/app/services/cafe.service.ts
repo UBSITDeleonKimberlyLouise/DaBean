@@ -1,53 +1,31 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export type YelpSortBy = 'best_match' | 'rating' | 'review_count' | 'distance';
-
-export interface YelpSearchOptions {
-  term?: string;
-  location?: string;
-  latitude?: number;
-  longitude?: number;
-  categories?: string;
-  limit?: number;
-  offset?: number;
-  sort_by?: YelpSortBy;
-  open_now?: boolean;
-}
-
-export interface YelpBusiness {
-  id: string;
-  name: string;
-  image_url: string;
-  rating: number;
-  review_count: number;
-  price?: string;
-  distance?: number;
-  categories: { title: string }[];
-  location: { display_address: string[] };
-  coordinates: { latitude: number; longitude: number };
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class CafeService {
   private http = inject(HttpClient);
-  
-  // CHANGED: Pointing to your local backend instead of the dead Render link
   private apiUrl = 'http://localhost:3000'; 
 
-  searchCafes(options: YelpSearchOptions): Observable<any> {
-    return this.http.post(`${this.apiUrl}/yelp/search`, options);
+  searchCafes(query: string, location: string): Observable<any[]> {
+    // 1. Combine query for better OSM results
+    const fullQuery = `${query} ${location}`;
+    
+    // 2. Nominatim is very strict. We add &addressdetails=1 and a limit.
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(fullQuery)}&format=jsonv2&addressdetails=1&limit=15`;
+    
+    // 3. We try to provide a header. If your browser blocks 'User-Agent', 
+    // it will at least send the 'Origin' which Nominatim uses to verify requests.
+    return this.http.get<any[]>(url);
   }
 
-getPublicReviews(filters: any = {}): Observable<any> {
-  return this.http.get(`${this.apiUrl}/reviews/public`, { params: filters });
-}
+  // --- MongoDB Review Methods ---
+  getPublicReviews(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/reviews/public`);
+  }
 
   createReview(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reviews`, data);
+    return this.http.post(`${this.apiUrl}/reviews`, this.formatPayload(data));
   }
 
   updateReview(id: string, data: any): Observable<any> {
@@ -58,24 +36,16 @@ getPublicReviews(filters: any = {}): Observable<any> {
     return this.http.delete(`${this.apiUrl}/reviews/${id}`);
   }
 
-  // Fallbacks for profile/register components
-  getMyReviews(): Observable<any> { return this.getPublicReviews(); }
-  getUserBadges(): Observable<any> { return this.http.get(`${this.apiUrl}/badges`); }
-
   private formatPayload(data: any) {
     return {
       cafe_name: data.cafe_name,
-      yelp_id: data.yelp_id || 'manual-entry',
       rating: Number(data.rating),
       review_text: data.review_text || '',
-      date_visited: data.date_visited || new Date().toISOString(),
+      date_visited: data.date_visited || new Date().toISOString().split('T')[0],
       companions: data.companions || '',
       best_dish: data.best_dish || '',
-      is_visited: true,
       is_public: true,
-      category: data.category || 'Cafe',
-      address: data.address || 'Baguio City',
-      image_url: data.image_url || ''
+      address: data.address || 'Baguio City'
     };
   }
 }
